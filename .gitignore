@@ -1,24 +1,140 @@
-# Compiled class file
+
+# ==================================================
+# SIGEP - Sistema de Gerenciamento de Pacientes
+# Java 21 | Spring Boot | React | PostgreSQL
+# Maven | Docker | GitHub Actions
+# ==================================================
+
+
+# --------------------------------------------------
+# 1. JAVA
+# --------------------------------------------------
+
 *.class
-
-# Log file
 *.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+*.hprof
+
+
+# --------------------------------------------------
+# 2. MAVEN / SPRING BOOT
+# --------------------------------------------------
+
+**/target/
+**/build/
+
+# Manter o Maven Wrapper versionado.
+# Nao ignorar mvnw, mvnw.cmd ou .mvn/wrapper/
+
+# Arquivos temporarios
+*.tmp
+*.temp
+
+
+# --------------------------------------------------
+# 3. INTELLIJ IDEA
+# --------------------------------------------------
+
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+
+# --------------------------------------------------
+# 4. VS CODE / ECLIPSE
+# --------------------------------------------------
+
+.vscode/
+.project
+.classpath
+.settings/
+.factorypath
+
+
+# --------------------------------------------------
+# 5. REACT / NODE.JS
+# --------------------------------------------------
+
+**/node_modules/
+**/dist/
+**/coverage/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# --------------------------------------------------
+# 6. VARIAVEIS DE AMBIENTE / CREDENCIAIS
+# --------------------------------------------------
+
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Configuracoes locais do Spring
+application-local.yml
+application-local.yaml
+application-local.properties
+application-secret.yml
+application-secret.yaml
+application-secret.properties
+
+# Chaves e certificados privados
+*.pem
+*.key
+*.p12
+*.pfx
+
+
+# --------------------------------------------------
+# 7. POSTGRESQL / DADOS LOCAIS
+# --------------------------------------------------
+
+postgres-data/
+pgdata/
+*.sql.gz
+*.dump
+*.backup
+
+
+# --------------------------------------------------
+# 8. DOCKER
+# --------------------------------------------------
+
+docker-compose.override.yml
+compose.override.yaml
+
+# Dockerfile, compose.yaml e compose.yml
+# devem ser versionados normalmente.
+
+
+# --------------------------------------------------
+# 9. SISTEMA OPERACIONAL
+# --------------------------------------------------
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+
+
+# --------------------------------------------------
+# 10. ARQUIVOS TEMPORARIOS
+# --------------------------------------------------
+
+*.bak
+*.orig
+*.rej
+.cache/
