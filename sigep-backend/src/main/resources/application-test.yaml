@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5433/sigep_test}
+    username: ${TEST_DB_USERNAME:sigep_test}
+    password: ${TEST_DB_PASSWORD}

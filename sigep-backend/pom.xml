@@ -11,8 +11,8 @@
 	<groupId>br.edu.upe</groupId>
 	<artifactId>sigep-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>SIGEP Backend </name>
+	<description>API REST do Sistema de Gerenciamento de Pacientes do CESMUC</description>
 	<url/>
 	<licenses>
 		<license/>
