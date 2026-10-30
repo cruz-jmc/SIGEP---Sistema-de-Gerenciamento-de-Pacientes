@@ -1,0 +1,48 @@
+
+# ==========================================
+# SIGEP - Docker Ignore
+# ==========================================
+
+# Maven
+target/
+build/
+
+# Git
+.git/
+.gitignore
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Arquivos temporários
+*.log
+*.tmp
+*.temp
+*.swp
+*~
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Credenciais e certificados
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Arquivos de documentação
+README.md
+
+# Arquivos do Docker
+Dockerfile
+.dockerignore
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
