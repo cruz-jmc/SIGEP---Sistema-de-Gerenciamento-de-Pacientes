@@ -14,9 +14,9 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ProfissionalEspecialidadeId implements Serializable {
     @Column(name = "profissional_id")
-    private Long id;
+    private Long profissionalId;
     @Column(name = "especialidade_id")
-    private Long id;
+    private Long especialidadeId;
 
 
 
