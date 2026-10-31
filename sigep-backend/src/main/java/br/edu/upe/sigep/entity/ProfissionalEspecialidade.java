@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = " profissional_especialidade")
+@Table(name = "profissional_especialidade")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -17,12 +17,12 @@ public class ProfissionalEspecialidade {
     private ProfissionalEspecialidadeId id=  new ProfissionalEspecialidadeId();
 
     @ManyToOne
-    @MapsId(profissionalId)
+    @MapsId("profissionalId")
     @JoinColumn(name = "profissional_id", nullable = false)
     private Profissional profissional;
 
     @ManyToOne
-    @MapsId(especialidadeId)
+    @MapsId("especialidadeId")
     @JoinColumn(name = "especialidade_id", nullable = false)
     private Especialidade especialidade;
 
