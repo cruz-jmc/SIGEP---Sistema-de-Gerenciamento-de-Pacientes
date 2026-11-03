@@ -1,6 +1,7 @@
 package br.edu.upe.sigep.service.impl;
 
 import br.edu.upe.sigep.entity.EscalaAtendimento;
+import br.edu.upe.sigep.repository.EscalaAtendimentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
