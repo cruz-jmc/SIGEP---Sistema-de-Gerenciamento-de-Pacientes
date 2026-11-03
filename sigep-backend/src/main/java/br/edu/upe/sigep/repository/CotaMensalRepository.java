@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CotaMensalRepository extends JpaRepository<CotaMensal, Long> {
-    List<CotaMensal> findByEspecialidadeIdAndMesRefernciaAndAnoReferencia(Long especialidadeid, LocalDate data);
-
+    Optional<CotaMensal> findByEspecialidadeIdAndMesReferenciaAndAnoReferencia(
+            Long especialidadeId, Integer mesReferencia, Integer anoReferencia);
 }
