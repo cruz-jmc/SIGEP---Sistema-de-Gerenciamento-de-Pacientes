@@ -3,17 +3,36 @@ services:
     build:
       context: ./sigep-backend
       dockerfile: Dockerfile
-
     image: sigep-backend:dev
-
     container_name: sigep-backend
-
     ports:
       - "127.0.0.1:8080:8080"
-
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_FLYWAY_ENABLED: ${SPRING_FLYWAY_ENABLED:-true}
       DB_URL: ${DB_URL:?DB_URL nao definida}
       DB_USERNAME: ${DB_USERNAME:?DB_USERNAME nao definido}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD nao definida}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: sigep
+      POSTGRES_USER: sigep
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD:?LOCAL_DB_PASSWORD nao definida}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sigep -d sigep"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:
