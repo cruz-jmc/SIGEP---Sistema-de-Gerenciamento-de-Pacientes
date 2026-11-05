@@ -16,10 +16,10 @@ public class CotaMensal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "mes_referencia", nullable = false)
-    private Integer mesReferencia;
-    @Column(name = "ano_referencia", nullable = false)
-    private Integer anoReferencia;
+    @Column(name = "mes_referencia", columnDefinition = "smallint", nullable = false)
+    private Short mesReferencia;
+    @Column(name = "ano_referencia", columnDefinition = "smallint", nullable = false)
+    private Short anoReferencia;
     @Column(name = "quantidade_cota_limite", nullable = false)
     private Integer qtdCotaLimite;
 
@@ -32,7 +32,7 @@ public class CotaMensal {
     private Profissional profissional;
 
     @ManyToOne
-    @JoinColumn(name = "cadastrado_por_id", nullable = false)
+    @JoinColumn(name = "cadastrado_por", nullable = false)
     private Usuario usuario;
 
 }

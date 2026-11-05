@@ -17,7 +17,7 @@ public class CotaMensalService {
     @Transactional(readOnly = true)
     public boolean temCotaDisponivel(Long especialidadeId, LocalDate data){
         return cotaMensalRepository.findByEspecialidadeIdAndMesReferenciaAndAnoReferencia(
-                especialidadeId, data.getMonthValue(), data.getYear())
+                especialidadeId, (short) data.getMonthValue(), (short) data.getYear())
                 .map(cota -> cota.getQtdCotaLimite() >0)
                 .orElse(false);
 
@@ -26,7 +26,7 @@ public class CotaMensalService {
     @Transactional
     public void decrementarCota(Long especialidadeId, LocalDate data) {
         CotaMensal cota = cotaMensalRepository.findByEspecialidadeIdAndMesReferenciaAndAnoReferencia(
-                        especialidadeId, data.getMonthValue(), data.getYear())
+                        especialidadeId, (short) data.getMonthValue(), (short) data.getYear())
                 .orElseThrow(() -> new IllegalArgumentException("Cota mensal não encontrada para esta especialidade e período."));
 
         if (cota.getQtdCotaLimite() <= 0) {

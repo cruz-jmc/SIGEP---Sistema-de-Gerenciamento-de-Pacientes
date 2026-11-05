@@ -2,8 +2,8 @@ package br.edu.upe.sigep.service.impl;
 
 import br.edu.upe.sigep.entity.AgendamentoSessao;
 import br.edu.upe.sigep.entity.Usuario;
-import br.edu.upe.sigep.enums.statusPresenca;
-import br.edu.upe.sigep.enums.statusSessao;
+import br.edu.upe.sigep.enums.StatusPresenca;
+import br.edu.upe.sigep.enums.StatusSessao;
 import br.edu.upe.sigep.repository.AgendamentoSessaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,24 +27,28 @@ public class AgendamentoSessaoService {
         return agendamentoSessaoRepository.save(agendamentoSessao);
     }
 
+    @Transactional(readOnly = true)
     public List<AgendamentoSessao> listarTodos() {
         return agendamentoSessaoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<AgendamentoSessao> buscarPorId(Long id) {
         return agendamentoSessaoRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<AgendamentoSessao> buscarPorPlanoTratamentoOrdenado(Long planoId) {
         return agendamentoSessaoRepository.findByPlanoTratamentoIdOrderByNumeroSessaoAsc(planoId);
     }
 
-    public long contarPorPlanoEStatusPresenca(Long planoId, statusPresenca status) {
+    @Transactional(readOnly = true)
+    public long contarPorPlanoEStatusPresenca(Long planoId, StatusPresenca status) {
         return agendamentoSessaoRepository.countByPlanoTratamentoIdAndStatusPresenca(planoId, status);
     }
 
     @Transactional
-    public AgendamentoSessao registrarPresenca(Long id, statusPresenca status, Usuario usuario) {
+    public AgendamentoSessao registrarPresenca(Long id, StatusPresenca status, Usuario usuario) {
         AgendamentoSessao agendamento = agendamentoSessaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado com o ID: " + id));
 
@@ -64,7 +68,7 @@ public class AgendamentoSessaoService {
         AgendamentoSessao agendamento = agendamentoSessaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado com o ID: " + id));
 
-        agendamento.setStatus(statusSessao.CANCELADA);
+        agendamento.setStatus(StatusSessao.CANCELADA_ABSENTEISMO);
         agendamento.setMotivoCancelamento(motivo);
         agendamento.setCanceladoEm(LocalDateTime.now());
 

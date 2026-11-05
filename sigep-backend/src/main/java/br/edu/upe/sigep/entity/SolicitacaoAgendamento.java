@@ -1,7 +1,7 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.grupos;
-import br.edu.upe.sigep.enums.statusSolicitacao;
+import br.edu.upe.sigep.enums.Grupos;
+import br.edu.upe.sigep.enums.StatusSolicitacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,13 +23,13 @@ public class SolicitacaoAgendamento {
     private Long id;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private grupos grupo;
-    @Column(name = "data_atendimento_inicial", nullable = false)
+    private Grupos grupo;
+    @Column(name = "data_agendamento_inicial", nullable = false)
     private LocalDate dataAtendimentoInicial;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private statusSolicitacao statusSolicitacao;
-    @Column(name = "motivo_rejeicao", length = 200)
+    private StatusSolicitacao statusSolicitacao;
+    @Column(name = "motivo_rejeicao", columnDefinition = "text")
     private String motivoRejeicao;
     @Column(name =  "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
@@ -45,15 +45,15 @@ public class SolicitacaoAgendamento {
     private Especialidade especialidade;
 
     @ManyToOne
-    @JoinColumn(name = "profissional_id")
+    @JoinColumn(name = "profissional_solicitado_id")
     private Profissional profissional;
 
     @ManyToOne
-    @JoinColumn(name = "cadastrado_por_id", nullable = false)
+    @JoinColumn(name = "cadastrado_por", nullable = false)
     private Usuario cadastradoPor;
 
     @ManyToOne
-    @JoinColumn(name = "analisado_por_id")
+    @JoinColumn(name = "revisado_por")
     private Usuario analisadoPor;
 
 

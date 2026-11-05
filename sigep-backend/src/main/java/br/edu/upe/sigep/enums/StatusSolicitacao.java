@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.enums;
 
-public enum statusSolicitacao {
+public enum StatusSolicitacao {
     PENDENTE,
     APROVADA,
     REJEITADA

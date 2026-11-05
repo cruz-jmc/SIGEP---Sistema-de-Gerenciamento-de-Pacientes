@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.enums;
 
-public enum statusTratamento {
+public enum StatusTratamento {
     ATIVO,
     CONCLUIDO,
     CANCELADO_ABSENTEISMO

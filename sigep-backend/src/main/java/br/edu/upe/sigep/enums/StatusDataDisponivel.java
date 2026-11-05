@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.enums;
 
-public enum statusDataDisponivel {
+public enum StatusDataDisponivel {
     DISPONIVEL,
     REALOCADA,
     CANCELADA

@@ -1,7 +1,7 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.statusPresenca;
-import br.edu.upe.sigep.enums.statusSessao;
+import br.edu.upe.sigep.enums.StatusPresenca;
+import br.edu.upe.sigep.enums.StatusSessao;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -28,30 +28,32 @@ public class AgendamentoSessao {
     private EscalaAtendimento escalaAtendimento;
 
     @Column(nullable = false)
-    private Integer numeroSessao;
+    private Short numeroSessao;
 
     @Column(nullable = false)
     private LocalDate dataAgendada;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private statusSessao status;
+    private StatusSessao status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private statusPresenca statusPresenca;
+    private StatusPresenca statusPresenca;
 
+    @Column(name = "presenca_registrada_em")
     private LocalDateTime presencaRegistradaEm;
 
+    @Column(name = "cancelado_em")
     private LocalDateTime canceladoEm;
 
-    @Column(name = "motivo_cancelamento", length = 250)
+    @Column(name = "motivo_cancelamento", columnDefinition = "text")
     private String motivoCancelamento;
 
-    @Column( nullable = false, updatable = false)
+    @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
     @ManyToOne
-    @JoinColumn(name = "presenca_registrada_por_id")
+    @JoinColumn(name = "presenca_registrada_por")
     private Usuario presencaRegistradaPor;
 }

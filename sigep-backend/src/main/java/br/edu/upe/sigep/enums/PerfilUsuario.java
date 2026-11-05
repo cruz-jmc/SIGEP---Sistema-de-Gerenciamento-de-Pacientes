@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.enums;
 
-public enum perfilUsuario {
+public enum PerfilUsuario {
     COORDENADOR,
-    ADMINISTRADOR
+    FUNCIONARIO
 }

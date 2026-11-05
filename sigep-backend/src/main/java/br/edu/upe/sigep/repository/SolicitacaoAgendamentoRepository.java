@@ -1,7 +1,7 @@
 package br.edu.upe.sigep.repository;
 
 import br.edu.upe.sigep.entity.SolicitacaoAgendamento;
-import br.edu.upe.sigep.enums.statusSolicitacao;
+import br.edu.upe.sigep.enums.StatusSolicitacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +12,5 @@ public interface SolicitacaoAgendamentoRepository extends JpaRepository<Solicita
 
     List<SolicitacaoAgendamento> findByPacienteId(Long pacienteId);
 
-    List<SolicitacaoAgendamento> findByStatus(statusSolicitacao status);
+    List<SolicitacaoAgendamento> findByStatus(StatusSolicitacao status);
 }

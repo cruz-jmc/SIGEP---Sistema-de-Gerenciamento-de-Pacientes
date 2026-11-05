@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.statusTratamento;
+import br.edu.upe.sigep.enums.StatusTratamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class PlanoTratamento {
     private Long id;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private statusTratamento statusPlano;
+    private StatusTratamento statusPlano;
     @Column(name = "aprovado_em")
     private LocalDateTime aprovadoEm;
     @Column(name = "criado_em", nullable = false, updatable = false)
@@ -29,9 +29,9 @@ public class PlanoTratamento {
 
     @OneToOne
     @JoinColumn(name = "solicitacao_id",nullable = false, unique = true)
-    private SolicitacaoAgendamento solicitaçao;
+    private SolicitacaoAgendamento solicitacao;
 
     @ManyToOne
-    @JoinColumn(name = "aprovado_por_id",nullable = false)
+    @JoinColumn(name = "aprovado_por",nullable = false)
     private Usuario aprovadoPor;
 }

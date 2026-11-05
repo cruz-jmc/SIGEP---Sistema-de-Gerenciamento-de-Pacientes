@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.tipoNotificacao;
+import br.edu.upe.sigep.enums.TipoNotificacao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,12 +21,12 @@ public class NotificacaoUsuario {
    private Long id;
    @Enumerated(EnumType.STRING)
    @Column(name = "tipo_notificacao", nullable = false)
-   private tipoNotificacao tipo;
-   @Column(length = 200, nullable = false)
+   private TipoNotificacao tipo;
+   @Column(columnDefinition = "text", nullable = false)
    private String mensagem;
    @Column(nullable = false)
    private boolean lida = false;
-   @Column(name="criada_em", nullable = false, updatable = false)
+   @Column(name="criado_em", nullable = false, updatable = false)
    private LocalDateTime criadaEm;
    @Column(name = "lido_em")
    private LocalDateTime lidoEm;

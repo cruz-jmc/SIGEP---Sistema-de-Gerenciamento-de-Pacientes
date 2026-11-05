@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.enums;
 
-public enum diaSemana {
+public enum DiaSemana {
     DOMINGO,
     SEGUNDA,
     TERCA,

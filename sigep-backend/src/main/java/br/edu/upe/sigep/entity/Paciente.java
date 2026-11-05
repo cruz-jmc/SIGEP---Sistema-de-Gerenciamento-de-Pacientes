@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "Paciente")
+@Table(name = "paciente")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -29,12 +29,14 @@ public class Paciente {
     private String cartaoSus;
     @Column(length = 20, nullable = false)
     private String telefone;
+    @Column(length = 300, nullable = false)
+    private String endereco;
     @Column(name = "ubs_origem",length = 200, nullable = false)
     private String ubsOrigem;
     @Column(nullable = false)
     private boolean ativo = true;
     @ManyToOne
-    @JoinColumn(name = "cadastrado_por_id")
+    @JoinColumn(name = "cadastrado_por")
     private Usuario cadastradoPor;
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;

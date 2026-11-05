@@ -1,7 +1,7 @@
 package br.edu.upe.sigep.entity;
 
 
-import br.edu.upe.sigep.enums.statusDataDisponivel;
+import br.edu.upe.sigep.enums.StatusDataDisponivel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,7 +25,7 @@ public class DataDisponivelRealocacao {
     private LocalDate dataDisponivel;
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private statusDataDisponivel status;
+    private StatusDataDisponivel status;
     @Column(name =  "disponibilizada_em", nullable = false, updatable = false)
     private LocalDateTime disponibilizadaEm;
     @Column(name = "realocada_em")
@@ -48,7 +48,7 @@ public class DataDisponivelRealocacao {
     private AgendamentoSessao agendamentoDestino;
 
     @ManyToOne
-    @JoinColumn(name = "cadastrado_por_id", nullable = false)
+    @JoinColumn(name = "cadastrado_por", nullable = false)
     private Usuario cadastradoPor;
 
 
