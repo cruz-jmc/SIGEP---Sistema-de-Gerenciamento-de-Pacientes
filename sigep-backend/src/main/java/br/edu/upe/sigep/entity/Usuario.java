@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.perfilUsuario;
+import br.edu.upe.sigep.enums.PerfilUsuario;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,19 +20,19 @@ public class Usuario {
     private Long ID;
     @Column(length = 150, nullable = false)
     private String nome;
-    @Column(length = 150, nullable = false, unique = true)
+    @Column(length = 255, nullable = false, unique = true)
     private String email;
-    @Column(length = 250, nullable = false)
+    @Column(name = "senha_hash", length = 255, nullable = false)
     private String senhaHash;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private perfilUsuario perfil;
+    private PerfilUsuario perfil;
     @Column(nullable = false)
     private boolean ativo;
     @Column(name= "primeiro_acesso", nullable = false)
     private boolean primeiroAcesso = true;
     @ManyToOne
-    @JoinColumn(name = "criado_por_id")
+    @JoinColumn(name = "criado_por")
     private Usuario criadorPor;
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;

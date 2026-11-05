@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "profissional")
 @NoArgsConstructor
@@ -24,5 +26,13 @@ public class Profissional {
     private String registroConselho;
     @Column(nullable = false)
     private boolean ativo = true;
+    @ManyToOne
+    @JoinColumn(name = "cadastrado_por")
+    private Usuario cadastradoPor;
+    @ManyToOne
+    @JoinColumn(name = "cadastrado_por")
+    private Usuario cadastradoPor;
+    @Column(name = "criado_em", nullable = false, updatable = false)
+    private LocalDateTime criadoEm;
 
 }

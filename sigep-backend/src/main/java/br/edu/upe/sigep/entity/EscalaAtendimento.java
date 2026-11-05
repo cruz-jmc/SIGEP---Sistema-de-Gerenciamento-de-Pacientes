@@ -1,7 +1,6 @@
 package br.edu.upe.sigep.entity;
 
-import br.edu.upe.sigep.enums.diaSemana;
-import br.edu.upe.sigep.enums.grupos;
+import br.edu.upe.sigep.enums.Grupos;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,10 +21,9 @@ public class EscalaAtendimento {
     private Long id;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private grupos grupo;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "dia_semana",nullable = false)
-    private diaSemana diaSemana;
+    private Grupos grupo;
+    @Column(name = "dia_semana", nullable = false)
+    private Short diaSemana;
     @Column(name = "vigencia_inicio", nullable = false)
     private LocalDate vigenciaInicio;
     @Column(name = "vigencia_fim", nullable = false)

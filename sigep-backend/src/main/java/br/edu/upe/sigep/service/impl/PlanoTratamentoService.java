@@ -1,7 +1,7 @@
 package br.edu.upe.sigep.service.impl;
 
 import br.edu.upe.sigep.entity.PlanoTratamento;
-import br.edu.upe.sigep.enums.statusTratamento;
+import br.edu.upe.sigep.enums.StatusTratamento;
 import br.edu.upe.sigep.repository.PlanoTratamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,24 +23,28 @@ public class PlanoTratamentoService {
             planoTratamento.setCriadoEm(LocalDateTime.now());
         }
         if (planoTratamento.getStatusPlano() == null) {
-            planoTratamento.setStatusPlano(statusTratamento.ATIVO);
+            planoTratamento.setStatusPlano(StatusTratamento.ATIVO);
         }
         return planoTratamentoRepository.save(planoTratamento);
     }
 
+    @Transactional(readOnly = true)
     public List<PlanoTratamento> listarTodos() {
         return planoTratamentoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<PlanoTratamento> buscarPorId(Long id) {
         return planoTratamentoRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
     public Optional<PlanoTratamento> buscarPorSolicitacao(Long solicitacaoId) {
         return planoTratamentoRepository.findBySolicitacaoId(solicitacaoId);
     }
 
-    public List<PlanoTratamento> buscarPorPacienteEStatus(Long pacienteId, statusTratamento statusPlano) {
+    @Transactional(readOnly = true)
+    public List<PlanoTratamento> buscarPorPacienteEStatus(Long pacienteId, StatusTratamento statusPlano) {
         return planoTratamentoRepository.findBySolicitacaoPacienteIdAndStatusPlano(pacienteId, statusPlano);
     }
 
@@ -49,7 +53,7 @@ public class PlanoTratamentoService {
         PlanoTratamento plano = planoTratamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plano de tratamento não encontrado com ID: " + id));
 
-        plano.setStatusPlano(statusTratamento.CONCLUIDO);
+        plano.setStatusPlano(StatusTratamento.CONCLUIDO);
         return planoTratamentoRepository.save(plano);
     }
 
@@ -58,7 +62,7 @@ public class PlanoTratamentoService {
         PlanoTratamento plano = planoTratamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Plano de tratamento não encontrado com ID: " + id));
 
-        plano.setStatusPlano(statusTratamento.CANCELADO_ABSENTEISMO);
+        plano.setStatusPlano(StatusTratamento.CANCELADO_ABSENTEISMO);
         return planoTratamentoRepository.save(plano);
     }
 
