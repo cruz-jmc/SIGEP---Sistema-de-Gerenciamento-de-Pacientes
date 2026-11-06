@@ -12,5 +12,5 @@ public interface SolicitacaoAgendamentoRepository extends JpaRepository<Solicita
 
     List<SolicitacaoAgendamento> findByPacienteId(Long pacienteId);
 
-    List<SolicitacaoAgendamento> findByStatus(StatusSolicitacao status);
+    List<SolicitacaoAgendamento> findByStatusSolicitacao(StatusSolicitacao status);
 }
