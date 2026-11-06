@@ -47,7 +47,7 @@ public class SolicitacaoAgendamentoService {
 
     @Transactional(readOnly = true)
     public List<SolicitacaoAgendamento> buscarPorStatus(StatusSolicitacao status) {
-        return solicitacaoAgendamentoRepository.findByStatus(status);
+        return solicitacaoAgendamentoRepository.findByStatusSolicitacao(status);
     }
 
     @Transactional

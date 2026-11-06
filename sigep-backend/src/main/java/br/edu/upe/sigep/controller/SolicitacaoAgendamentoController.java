@@ -2,7 +2,7 @@
 package br.edu.upe.sigep.controller;
 
 import br.edu.upe.sigep.entity.SolicitacaoAgendamento;
-import br.edu.upe.sigep.enums.statusSolicitacao;
+import br.edu.upe.sigep.enums.StatusSolicitacao;
 import br.edu.upe.sigep.service.impl.SolicitacaoAgendamentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,23 +45,25 @@ public class SolicitacaoAgendamentoController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<SolicitacaoAgendamento>> buscarPorStatus(
-            @PathVariable statusSolicitacao status) {
+            @PathVariable StatusSolicitacao status) {
         return ResponseEntity.ok(
                 solicitacaoService.buscarPorStatus(status));
     }
 
     @PatchMapping("/{id}/aprovar")
     public ResponseEntity<SolicitacaoAgendamento> aprovar(
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @RequestParam Long revisorId) {
         return ResponseEntity.ok(
-                solicitacaoService.aprovarSolicitacao(id));
+                solicitacaoService.aprovarSolicitacao(id, revisorId));
     }
 
     @PatchMapping("/{id}/rejeitar")
     public ResponseEntity<SolicitacaoAgendamento> rejeitar(
             @PathVariable Long id,
+            @RequestParam Long revisorId,
             @RequestBody String motivo) {
         return ResponseEntity.ok(
-                solicitacaoService.rejeitarSolicitacao(id, motivo));
+                solicitacaoService.rejeitarSolicitacao(id, revisorId, motivo));
     }
 }
