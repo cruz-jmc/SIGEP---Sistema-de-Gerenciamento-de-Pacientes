@@ -1,5 +1,6 @@
 package br.edu.upe.sigep.entity;
 
+import br.edu.upe.sigep.enums.DiaSemana;
 import br.edu.upe.sigep.enums.Grupos;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ public class EscalaAtendimento {
     @Column(nullable = false)
     private Grupos grupo;
     @Column(name = "dia_semana", nullable = false)
-    private Short diaSemana;
+    private DiaSemana diaSemana;
     @Column(name = "vigencia_inicio", nullable = false)
     private LocalDate vigenciaInicio;
     @Column(name = "vigencia_fim", nullable = false)
