@@ -29,9 +29,6 @@ public class Profissional {
     @ManyToOne
     @JoinColumn(name = "cadastrado_por")
     private Usuario cadastradoPor;
-    @ManyToOne
-    @JoinColumn(name = "cadastrado_por")
-    private Usuario cadastradoPor;
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
