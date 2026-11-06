@@ -1,196 +1,268 @@
 # SIGEP — Sistema de Gerenciamento de Pacientes
 
-Projeto acadêmico de aplicação web para apoiar a digitalização do gerenciamento de pacientes do **CESMUC — Centro de Especialidades da Saúde da Mulher e da Criança**, unidade de saúde localizada em **Garanhuns, Pernambuco**, voltada ao atendimento especializado de mulheres e crianças.
+**Versão 1.0.0 — versão estável para demonstração acadêmica do Checkpoint 3**
 
-> **Situação do projeto:** em desenvolvimento. As funcionalidades e integrações descritas neste documento não devem ser interpretadas como prontas para uso em produção.
+O SIGEP é um projeto acadêmico da Universidade de Pernambuco (UPE) voltado à organização de cadastros e processos administrativos de pacientes do CESMUC, em Garanhuns (PE). Esta versão disponibiliza a estrutura inicial do backend REST e a persistência em PostgreSQL, com esquema versionado pelo Flyway.
 
-## 1. Contexto e objetivo
+> **Escopo:** a classificação “estável” refere-se ao ambiente e aos fluxos básicos demonstrados no Checkpoint 3. Esta versão não deve ser considerada pronta para produção ou uso com dados reais de pacientes: autenticação, autorização, proteção de informações sensíveis e testes adicionais ainda são necessários.
 
-O SIGEP busca transformar processos manuais de gerenciamento de pacientes do CESMUC em fluxos digitais, facilitando o cadastro, a consulta e a organização de informações, apoiando o trabalho administrativo e reduzindo a incidência de erros humanos. O projeto também contempla, em diferentes estágios de desenvolvimento, o gerenciamento de profissionais, especialidades, solicitações de agendamento, planos de tratamento, sessões, escalas e cotas de atendimento.
+## Tecnologias
 
-## 2. Contexto acadêmico
+- Java 21; Spring Boot 4.0.8; Maven Wrapper
+- Spring Data JPA / Hibernate; Jakarta Bean Validation
+- PostgreSQL 17; Flyway
+- Docker e Docker Compose
+- Insomnia para testes HTTP; DBeaver para inspeção do banco
+- Frontend React previsto no projeto (não é necessário para este roteiro de backend)
 
-- **Instituição:** Universidade de Pernambuco (UPE).
-- **Disciplinas:** Programação Web e Padrões de Projeto.
-- **Professores:** Elisson Rocha e Carlos Melo.
-- **Equipe:** João Cruz, Letícia Guardiola e Mateus Aguiar.
-
-## 3. Tecnologias
-
-| Componente | Tecnologia | Situação |
-|---|---|---|
-| Linguagem do backend | Java 21 | Configurada |
-| Framework | Spring Boot 4.0.8 | Configurado |
-| API HTTP | Spring Web / Spring MVC | Em desenvolvimento |
-| Persistência | Spring Data JPA / Hibernate | Em desenvolvimento |
-| Banco de dados | PostgreSQL 17 | Configurado via Docker Compose |
-| Versionamento do esquema | Flyway | Configurado; migrations iniciais pendentes |
-| Build | Maven / Maven Wrapper | Configurado |
-| Infraestrutura local | Docker e Docker Compose | Configurada |
-| Redução de código repetitivo | Lombok | Em uso |
-| Frontend | React | Planejado; aplicação ainda não implementada |
-
-## 4. Arquitetura e organização do repositório
-
-O backend segue uma organização em camadas, com entidades JPA, repositories, services e controllers REST. A introdução de DTOs de entrada e saída, validações e mapeadores faz parte das próximas etapas de desenvolvimento.
+## Estrutura relevante
 
 ```text
 .
-├── .github/                  # Configurações de colaboração e automação
-├── docs/                     # Documentação e modelo relacional
-├── docker/                   # Arquivos auxiliares de infraestrutura
-├── sigep-backend/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   ├── mvnw
-│   └── src/
-│       ├── main/
-│       │   ├── java/br/edu/upe/sigep/
-│       │   │   ├── controller/
-│       │   │   ├── dto/
-│       │   │   ├── entity/
-│       │   │   ├── enums/
-│       │   │   ├── mapper/
-│       │   │   ├── repository/
-│       │   │   └── service/
-│       │   └── resources/
-│       │       ├── application.yaml
-│       │       ├── application-dev.yaml
-│       │       ├── application-test.yaml
-│       │       └── db/migration/
-│       └── test/
-├── sigep-frontend/           # Diretório reservado ao frontend
 ├── compose.yaml
 ├── .env.example
-└── README.md
+├── sigep-backend/
+│   ├── Dockerfile
+│   ├── mvnw
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/br/edu/upe/sigep/
+│       └── resources/
+│           ├── application.yaml
+│           ├── application-dev.yaml
+│           └── db/migration/
+│               └── V1__criacao_inicial_do_banco.sql
+├── sigep-frontend/
+└── docs/
 ```
 
-Algumas pastas estão reservadas para implementações futuras e ainda não contêm classes funcionais.
+## Pré-requisitos
 
-## 5. Funcionalidades e estado de implementação
+- Git instalado para clonar o repositório.
 
-### Estruturas existentes
+- Docker Engine e Docker Compose Plugin instalados e funcionando.
+- DBeaver e Insomnia, opcionais para execução, recomendados para demonstração.
+- Portas **5433** e **8080** livres no host.
+- Arquivo `.env` configurado na raiz do repositório, com base no `.env.example`. **Nunca versione `.env` nem compartilhe senhas.**
 
-- Mapeamentos JPA para pacientes, usuários, profissionais, especialidades, solicitações, planos de tratamento, sessões, escalas, cotas, notificações, realocações e auditoria.
-- Repositories para as principais entidades.
-- Services com operações cadastrais e algumas regras de negócio, como verificação de duplicidade, revisão de solicitações e controle de cotas.
-- Controllers REST para parte dos fluxos de solicitações, sessões, planos, escalas, cotas e auditoria.
+A aplicação usa a rede interna do Compose para conectar o backend ao PostgreSQL em `db:5432`; o DBeaver acessa o banco pela porta publicada `127.0.0.1:5433`.
 
-### Em desenvolvimento ou pendente de validação
+## Instalação rápida — a partir de um clone novo
 
-- Correção de incompatibilidades de compilação e consultas derivadas.
-- Controllers e contratos REST para cadastros centrais.
-- DTOs de requisição e resposta, validações e tratamento padronizado de erros.
-- Alinhamento entre entidades JPA e modelo relacional validado.
-- Migrations iniciais do Flyway.
-- Testes de integração e evidências de CRUD funcionando.
-- Segurança, autenticação e autorização adequadas ao tratamento de dados pessoais.
-- Interface web em React.
+O caminho recomendado para iniciar **backend e PostgreSQL juntos** é `docker compose up -d --build`. O Docker Compose cria a rede e o volume necessários; o Flyway executa automaticamente a migration V1 quando o backend inicia. **Não é preciso executar o SQL manualmente no DBeaver.**
 
-**Importante:** a presença de uma classe ou endpoint no código não significa que seu funcionamento tenha sido comprovado. O sistema ainda não possui evidência documentada de CRUD completo em execução.
+### 1. Clonar o repositório
 
-## 6. Pré-requisitos
+```bash
+git clone <URL_DO_REPOSITORIO>
+cd <DIRETORIO_CLONADO>
+```
 
-Para utilizar o ambiente local, recomenda-se instalar:
+Substitua os campos entre `< >` pela URL e pelo diretório reais do projeto. Todos os comandos seguintes devem ser executados na pasta que contém `compose.yaml`.
 
-- Git;
-- Docker com Docker Compose;
-- Java 21, caso deseje executar o backend fora do contêiner.
-
-O repositório inclui o Maven Wrapper (`sigep-backend/mvnw`), que permite executar comandos Maven sem exigir uma instalação global do Maven, desde que o ambiente possua os requisitos do wrapper.
-
-## 7. Configuração do ambiente
-
-Na raiz do repositório, crie seu arquivo `.env` a partir do modelo:
+### 2. Configurar variáveis de ambiente
 
 ```bash
 cp .env.example .env
 ```
 
-Revise os valores no arquivo `.env` e defina uma senha local para o PostgreSQL. **Não envie `.env`, senhas ou outros segredos para o Git.**
+Abra `.env` e preencha as variáveis exigidas pelo `compose.yaml` e pelos perfis Spring. Em particular, confira `LOCAL_DB_PASSWORD`, `DB_URL`, `DB_USERNAME` e `DB_PASSWORD`. No ambiente Docker, o endereço JDBC deve apontar para o serviço PostgreSQL na rede interna, por exemplo `jdbc:postgresql://db:5432/sigep`, **não** para `localhost:5433`. Use os nomes e valores efetivamente definidos no `.env.example` e no Compose; não publique senhas.
 
-A configuração do Compose utiliza uma rede interna entre o backend e o banco. Por isso, a URL JDBC do backend em contêiner utiliza o hostname `db` e a porta `5432`, enquanto o acesso ao PostgreSQL pelo computador anfitrião utiliza a porta local `5433`, conforme o mapeamento do Compose.
-
-### Subir somente o banco local
+### 3. Construir e iniciar todos os serviços
 
 ```bash
 docker compose config --quiet
-docker compose up -d db
+docker compose up -d --build
+```
+
+O `--build` constrói a imagem do backend e o `-d` deixa os serviços executando em segundo plano. Na primeira execução com volume vazio, o PostgreSQL inicializa o banco e o Flyway aplica a migration `V1__criacao_inicial_do_banco.sql`. O Hibernate verifica a compatibilidade do esquema (`ddl-auto: validate`). A aplicação expõe a API em `http://localhost:8080`.
+
+**Condição importante:** para que o comando único seja confiável, `backend` deve depender de `db` com `condition: service_healthy`, e `db` deve possuir um `healthcheck` funcional. O PostgreSQL já foi observado como `healthy` neste projeto, mas **confira a cláusula `depends_on` no `compose.yaml`**. Sem essa condição, o Compose pode iniciar o backend antes de o banco aceitar conexões. O comando único é o fluxo desejado, mas deve ser revalidado após um clone limpo.
+
+### 4. Confirmar a inicialização
+
+```bash
+docker compose ps
+docker compose logs --tail=100 backend
+```
+
+Nos logs, procure `Successfully applied 1 migration` (na primeira inicialização) e `Started SigepBackendApplication`. Se algum serviço falhar, acompanhe os logs:
+
+```bash
+docker compose logs -f backend
+docker compose logs --tail=100 db
+```
+
+Em seguida, teste a API:
+
+```bash
+curl -i http://localhost:8080/api/especialidades
+```
+
+Num banco novo, a resposta esperada é `HTTP/1.1 200` com `[]`. O build atual usa `-DskipTests`: subir os contêineres não substitui a execução da suíte de testes.
+
+### 5. Confirmar as tabelas no DBeaver (opcional)
+
+Conecte ao PostgreSQL com os parâmetros abaixo:
+
+| Parâmetro | Valor |
+|---|---|
+| Host | `localhost` |
+| Porta | `5433` |
+| Database | `sigep` |
+| Usuário | `sigep` |
+| Senha | valor de `LOCAL_DB_PASSWORD` no `.env` |
+
+No editor SQL, execute:
+
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+
+SELECT installed_rank, version, description, type, success
+FROM public.flyway_schema_history
+ORDER BY installed_rank;
+```
+
+O esperado após a primeira inicialização bem-sucedida é encontrar **14 tabelas** (13 do domínio e `flyway_schema_history`) e a versão 1 com `success = true`.
+
+### Comandos úteis no dia a dia
+
+```bash
+# Parar serviços sem excluir o banco
+docker compose down
+
+# Reiniciar serviços existentes, preservando dados
+docker compose up -d
+
+# Reconstruir e iniciar após alterações no código
+docker compose up -d --build
+
+# Acompanhar logs do backend
+docker compose logs -f backend
+
+# Consultar o estado dos serviços
 docker compose ps
 ```
 
-Para verificar a disponibilidade do PostgreSQL:
+O volume PostgreSQL persiste entre `down` e `up`. O Flyway não reaplica uma migration já registrada com sucesso.
+
+### Diagnóstico manual (somente quando necessário)
+
+Caso a inicialização automática falhe ou você queira observar cada etapa da primeira migração:
 
 ```bash
-docker compose exec db pg_isready -U sigep -d sigep
+docker compose build backend
+docker compose up -d db
+docker compose ps
+docker compose up --no-build backend
 ```
 
-### Compilar o backend
+O último comando mostra os logs do backend em primeiro plano. Esse procedimento foi usado na validação inicial do SIGEP, mas **não é exigido para o uso normal**.
 
-Execute a partir da raiz do repositório:
+## Demonstração de API no Insomnia
+
+Configure a URL base `http://localhost:8080`. Crie uma coleção `SIGEP — Checkpoint 3`. Para requisições POST e PUT, use `Body → JSON` e `Content-Type: application/json`.
+
+### Especialidade — roteiro principal
+
+| Etapa | Método | Caminho | Resultado esperado |
+|---|---|---|---|
+| Consultar banco vazio | GET | `/api/especialidades` | `200 OK`, `[]` |
+| Cadastrar | POST | `/api/especialidades` | `201 Created`, registro com ID |
+| Listar | GET | `/api/especialidades` | `200 OK`, registro incluído |
+| Consultar por ID | GET | `/api/especialidades/{id}` | `200 OK` |
+| Atualizar | PUT | `/api/especialidades/{id}` | `200 OK` |
+| Inativar | PATCH | `/api/especialidades/{id}/ativo?ativo=false` | `200 OK` |
+| Listar ativas | GET | `/api/especialidades/ativas` | Registro inativo não aparece |
+| Reativar | PATCH | `/api/especialidades/{id}/ativo?ativo=true` | `200 OK` |
+
+Exemplo de POST:
+
+```json
+{
+  "nome": "Fisioterapia",
+  "descricao": "Atendimento fisioterapeutico"
+}
+```
+
+Exemplo de PUT (substitua `{id}` pelo identificador retornado no POST):
+
+```json
+{
+  "nome": "Fisioterapia",
+  "descricao": "Atendimento fisioterapeutico especializado"
+}
+```
+
+No DBeaver, confira o registro:
+
+```sql
+SELECT * FROM public.especialidade ORDER BY id;
+```
+
+A aplicação utiliza **inativação lógica** nesses cadastros; não há endpoint DELETE para Especialidade, Paciente ou Profissional nesta versão.
+
+### Paciente e Profissional
+
+Endpoints implementados para cada recurso:
+
+| Operação | Paciente | Profissional |
+|---|---|---|
+| Cadastrar | `POST /api/pacientes` | `POST /api/profissionais` |
+| Listar | `GET /api/pacientes` | `GET /api/profissionais` |
+| Consultar | `GET /api/pacientes/{id}` | `GET /api/profissionais/{id}` |
+| Atualizar | `PUT /api/pacientes/{id}` | `PUT /api/profissionais/{id}` |
+| Listar ativos | `GET /api/pacientes/ativos` | `GET /api/profissionais/ativos` |
+| Inativar/reativar | `PATCH /api/pacientes/{id}/ativo?ativo=false` | `PATCH /api/profissionais/{id}/ativo?ativo=false` |
+
+Use **dados inteiramente fictícios**, de acordo com os campos exigidos pelos respectivos RequestDTOs. O campo opcional `cadastradoPorId` pode ser omitido no cadastro inicial, sem criar um usuário fictício no banco. Consulte no DBeaver:
+
+```sql
+SELECT * FROM public.paciente ORDER BY id;
+SELECT * FROM public.profissional ORDER BY id;
+```
+
+### Regras de negócio e erros HTTP
+
+Os Services implementam validações, prevenção de duplicidades e preservação de campos de controle. Demonstre, por exemplo, uma tentativa de cadastrar novamente o mesmo nome de especialidade. **Registre o status HTTP realmente retornado**: algumas exceções de negócio ainda não possuem tradução específica para `400`, `404` ou `409`. Não declare esses status como garantidos sem teste.
+
+### Comprovar persistência após reinício
+
+Depois de cadastrar um registro, reinicie somente o backend, sem remover o volume do banco:
 
 ```bash
-cd sigep-backend
-./mvnw clean compile
+docker compose restart backend
 ```
 
-> **Atenção:** a compilação pode falhar no estágio atual devido a inconsistências entre controllers, services e repositories já identificadas na revisão estática. Os erros devem ser corrigidos antes de considerar o backend executável.
+Repita o GET no Insomnia e o SELECT no DBeaver. O registro deve permanecer no banco. O Flyway deve reconhecer a V1 como já aplicada, sem recriá-la.
 
-### Inicialização completa da API
+## Recriar o ambiente do zero — operação destrutiva
 
-O `compose.yaml` define os serviços `backend` e `db`. Entretanto, a configuração JPA utiliza `ddl-auto: validate` e o Flyway ainda não possui as migrations iniciais necessárias para preparar um banco vazio. Portanto, **a inicialização completa da API não está validada neste estágio**.
+> **ATENÇÃO:** o procedimento abaixo apaga irreversivelmente todos os registros e tabelas armazenados no volume PostgreSQL do projeto. Faça backup antes, se houver dados a preservar. Execute apenas em ambiente de desenvolvimento/demonstração e confira o projeto Compose ativo.
 
-Após a criação e validação das migrations e a correção dos bloqueios de compilação, a equipe deverá testar a inicialização do backend e documentar os endpoints efetivamente funcionais.
+Na raiz do SIGEP, com a confirmação de que os dados são descartáveis:
 
-## 8. Perfis e persistência
+```bash
+docker compose down -v --remove-orphans
+```
 
-- `application.yaml`: configurações gerais, incluindo JPA, Flyway e porta HTTP.
-- `application-dev.yaml`: configurações do ambiente de desenvolvimento e variáveis de conexão.
-- `application-test.yaml`: configurações previstas para testes, ainda dependentes de preparação do ambiente correspondente.
-- `db/migration/`: diretório destinado aos scripts versionados do Flyway.
+O comando remove contêineres, rede do Compose e volumes declarados para o projeto, incluindo os dados do PostgreSQL. Para remover também **apenas a imagem do backend do SIGEP**:
 
-As migrations devem refletir o modelo relacional aprovado e os mapeamentos JPA revisados.
+```bash
+docker image rm sigep-backend:dev
+```
 
-## 9. Fluxo de desenvolvimento e Git
+Não é necessário remover a imagem compartilhável `postgres:17` nem executar comandos globais como `docker system prune -a --volumes`.
 
-- **`main`**: branch de versões estáveis. Alterações devem ocorrer por **Pull Requests**, com pelo menos uma aprovação conforme as regras do repositório.
-- **`develop`**: branch de integração e testes, com pushes diretos permitidos pela equipe.
-- **`feat/*`**: branches de funcionalidades, normalmente integradas à `develop`.
-- **`refactor/*`**: branches para reorganização e melhoria de código ou documentação.
+Confira:
 
-O fluxo usual é desenvolver em uma branch específica, integrar e validar na `develop` e, quando a equipe considerar uma versão estável, abrir um Pull Request de `develop` para `main`.
+```bash
+docker compose ps -a
+docker volume ls
+docker image ls
+```
 
-## 10. Testes e avaliação acadêmica
-
-O projeto é avaliado, entre outros marcos, pelo **Checkpoint 3 — Back-end até Controller**, que considera:
-
-1. Correspondência das entidades JPA com o DER aprovado;
-2. Repositories das entidades centrais;
-3. Regras de negócio implementadas nos services;
-4. Controllers REST com verbos e códigos HTTP coerentes;
-5. Evidência de funcionamento de CRUD via Postman, Insomnia ou demonstração.
-
-Ainda é necessário corrigir os bloqueios identificados, executar testes e produzir evidências reproduzíveis de funcionamento. Uma compilação bem-sucedida, isoladamente, não comprova o funcionamento do CRUD.
-
-## 11. Segurança e privacidade
-
-O SIGEP trabalha com um domínio que envolve dados pessoais e potencialmente sensíveis. O desenvolvimento deve priorizar a minimização dos dados retornados pela API, a proteção de credenciais, a validação de entradas e o controle de acesso.
-
-Não utilize dados reais de pacientes em testes ou exemplos públicos. Entidades JPA não devem ser expostas diretamente em respostas HTTP sem revisão dos campos, especialmente informações como hashes de senha e dados pessoais.
-
-## 12. Limitações atuais e próximos passos
-
-1. Corrigir os erros de compilação e as consultas derivadas inconsistentes.
-2. Confirmar o alinhamento das entidades com o modelo relacional aprovado.
-3. Implementar DTOs e controllers para os cadastros centrais, iniciando por `Especialidade`.
-4. Definir tratamento de erros, validações e controles de segurança.
-5. Criar e testar as migrations do Flyway em PostgreSQL local.
-6. Demonstrar operações CRUD e registrar evidências de testes.
-7. Evoluir a integração com o frontend.
-
-## 13. Autoria
-
-**Equipe:** João Cruz, Letícia Guardiola e Mateus Aguiar.  
-**Professores:** Elisson Rocha e Carlos Melo.  
-**Instituição:** Universidade de Pernambuco (UPE).  
-**Disciplinas:** Programação Web e Padrões de Projeto.
+Em seguida, repita a seção **Instalação rápida — a partir de um clone novo**, começando pela configuração existente e executando `docker compose up -d --build`. O novo volume será inicializado pelo PostgreSQL, e a V1 será aplicada pelo Flyway quando o backend iniciar.
