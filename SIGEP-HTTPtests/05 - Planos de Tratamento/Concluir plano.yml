@@ -1,0 +1,14 @@
+info:
+  name: Concluir plano
+  type: http
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/planos-tratamento/{{planoId}}/concluir"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,14 @@
+info:
+  name: "Profissional inexistente "
+  type: http
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/profissionais/999999"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

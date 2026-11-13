@@ -1,0 +1,65 @@
+info:
+  name: Criar sessão
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/agendamentos-sessoes"
+  body:
+    type: json
+    data: |-
+      {
+        "planoTratamento": {
+          "id": 1,
+          "solicitacao": {
+            "id": 2,
+            "paciente": {
+              "id": 2,
+              "ativo": true
+            },
+            "especialidade": {
+              "id": 1,
+              "ativo": true
+            },
+            "cadastradoPor": {
+              "id": 1,
+              "ativo": true,
+              "primeiroAcesso": false
+            }
+          },
+          "aprovadoPor": {
+            "id": 1,
+            "ativo": true,
+            "primeiroAcesso": false
+          }
+        },
+        "escalaAtendimento": {
+          "id": 1,
+          "grupo": "GRUPO_A",
+          "diaSemana": "QUINTA",
+          "vigenciaInicio": "2026-11-01",
+          "vigenciaFim": "2026-12-31",
+          "pacientesPorTurno": 10,
+          "ativo": true,
+          "profissional": {
+            "id": 1,
+            "ativo": true
+          },
+          "especialidade": {
+            "id": 1,
+            "ativo": true
+          }
+        },
+        "numeroSessao": 1,
+        "dataAgendada": "2026-11-19",
+        "status": "AGENDADA",
+        "statusPresenca": "PENDENTE"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

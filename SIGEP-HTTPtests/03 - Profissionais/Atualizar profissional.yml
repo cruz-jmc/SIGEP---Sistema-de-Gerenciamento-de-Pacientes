@@ -1,0 +1,23 @@
+info:
+  name: Atualizar profissional
+  type: http
+  seq: 1
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/profissionais/{{profissionalId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Profissional Ficticio Atualizado CP3",
+        "conselho": "CONSELHO-DEMONSTRACAO",
+        "registroConselho": "CP3-FICTICIO-001"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

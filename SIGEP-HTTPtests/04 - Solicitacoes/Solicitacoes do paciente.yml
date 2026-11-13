@@ -1,0 +1,14 @@
+info:
+  name: Solicitacoes do paciente
+  type: http
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/solicitacoes/paciente/{{pacienteId}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

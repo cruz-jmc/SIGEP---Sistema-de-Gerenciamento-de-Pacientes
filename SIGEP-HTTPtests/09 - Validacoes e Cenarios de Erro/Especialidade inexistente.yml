@@ -1,0 +1,14 @@
+info:
+  name: Especialidade inexistente
+  type: http
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/especialidades/999999"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

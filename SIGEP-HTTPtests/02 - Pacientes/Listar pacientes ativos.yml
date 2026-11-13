@@ -1,0 +1,14 @@
+info:
+  name: Listar pacientes ativos
+  type: http
+
+http:
+  method: GET
+  url: http://localhost:8080/api/pacientes/ativos
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

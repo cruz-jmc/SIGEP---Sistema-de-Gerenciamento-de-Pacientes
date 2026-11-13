@@ -1,0 +1,22 @@
+info:
+  name: Especialidade sem nome
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/especialidades"
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "",
+        "descricao": "Teste de validacao"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

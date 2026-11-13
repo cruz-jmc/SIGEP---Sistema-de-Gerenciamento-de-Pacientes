@@ -1,0 +1,21 @@
+info:
+  name: Cancelamento sem motivo
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/agendamentos-sessoes/1/cancelar"
+  body:
+    type: json
+    data: |-
+      {
+        "motivo": ""
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

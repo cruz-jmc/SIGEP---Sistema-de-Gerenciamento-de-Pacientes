@@ -1,0 +1,18 @@
+info:
+  name: Inativar paciente
+  type: http
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/pacientes/{{pacienteId}}/ativo?ativo=false"
+  params:
+    - name: ativo
+      value: "false"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

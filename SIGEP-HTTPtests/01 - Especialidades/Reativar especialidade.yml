@@ -1,0 +1,19 @@
+info:
+  name: Reativar especialidade
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: http://localhost:8080/api/especialidades/1/ativo?ativo=true
+  params:
+    - name: ativo
+      value: "true"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,25 @@
+info:
+  name: Rejeitar solicitacao
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/solicitacoes/1/rejeitar?revisorId={{usuarioId}}"
+  headers:
+    - name: Content-Type
+      value: text/plain
+  params:
+    - name: revisorId
+      value: "{{usuarioId}}"
+      type: query
+  body:
+    type: text
+    data: Paciente não atende aos critérios de agendamento.
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

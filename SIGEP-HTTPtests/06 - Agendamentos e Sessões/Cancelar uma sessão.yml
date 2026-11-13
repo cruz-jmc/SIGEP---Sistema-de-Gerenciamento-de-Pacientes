@@ -1,0 +1,21 @@
+info:
+  name: Cancelar uma sessão
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/agendamentos-sessoes/{{sessaoId}}/cancelar"
+  body:
+    type: json
+    data: |-
+      {
+        "motivo": "Paciente apresentou faltas recorrentes sem justificativa."
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
