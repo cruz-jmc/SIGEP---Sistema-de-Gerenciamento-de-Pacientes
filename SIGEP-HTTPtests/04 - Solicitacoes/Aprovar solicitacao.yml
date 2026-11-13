@@ -1,0 +1,18 @@
+info:
+  name: Aprovar solicitacao
+  type: http
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/aprovar?revisorId={{usuarioId}}"
+  params:
+    - name: revisorId
+      value: "{{usuarioId}}"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

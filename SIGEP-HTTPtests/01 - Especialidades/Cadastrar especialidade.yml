@@ -1,0 +1,22 @@
+info:
+  name: Cadastrar especialidade
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/especialidades
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Fisioterapia",
+        "descricao": "Atendimento fisioterapeutico"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

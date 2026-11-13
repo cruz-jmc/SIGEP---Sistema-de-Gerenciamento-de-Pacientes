@@ -1,0 +1,22 @@
+info:
+  name: Decrementar cota
+  type: http
+  seq: 1
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/cotas-mensais/decrementar?especialidadeId=1&data=2026-12-20"
+  params:
+    - name: especialidadeId
+      value: "1"
+      type: query
+    - name: data
+      value: 2026-12-20
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

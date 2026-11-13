@@ -1,0 +1,14 @@
+info:
+  name: Sessão inexistente
+  type: http
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/agendamentos-sessoes/999999"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

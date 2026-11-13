@@ -12,8 +12,8 @@ O SIGEP é um projeto acadêmico da Universidade de Pernambuco (UPE) voltado à 
 - Spring Data JPA / Hibernate; Jakarta Bean Validation
 - PostgreSQL 17; Flyway
 - Docker e Docker Compose
-- Insomnia para testes HTTP; DBeaver para inspeção do banco
-- Frontend React previsto no projeto (não é necessário para este roteiro de backend)
+- Extensão "Bruno" para testes HTTP; DBeaver para inspeção do banco
+- Frontend React previsto no projeto
 
 ## Estrutura relevante
 
@@ -105,13 +105,13 @@ Num banco novo, a resposta esperada é `HTTP/1.1 200` com `[]`. O build atual us
 
 Conecte ao PostgreSQL com os parâmetros abaixo:
 
-| Parâmetro | Valor |
-|---|---|
-| Host | `localhost` |
-| Porta | `5433` |
-| Database | `sigep` |
-| Usuário | `sigep` |
-| Senha | valor de `LOCAL_DB_PASSWORD` no `.env` |
+| Parâmetro | Valor                                  |
+| --------- | -------------------------------------- |
+| Host      | `localhost`                            |
+| Porta     | `5433`                                 |
+| Database  | `sigep`                                |
+| Usuário   | `sigep`                                |
+| Senha     | valor de `LOCAL_DB_PASSWORD` no `.env` |
 
 No editor SQL, execute:
 
@@ -168,16 +168,16 @@ Configure a URL base `http://localhost:8080`. Crie uma coleção `SIGEP — Chec
 
 ### Especialidade — roteiro principal
 
-| Etapa | Método | Caminho | Resultado esperado |
-|---|---|---|---|
-| Consultar banco vazio | GET | `/api/especialidades` | `200 OK`, `[]` |
-| Cadastrar | POST | `/api/especialidades` | `201 Created`, registro com ID |
-| Listar | GET | `/api/especialidades` | `200 OK`, registro incluído |
-| Consultar por ID | GET | `/api/especialidades/{id}` | `200 OK` |
-| Atualizar | PUT | `/api/especialidades/{id}` | `200 OK` |
-| Inativar | PATCH | `/api/especialidades/{id}/ativo?ativo=false` | `200 OK` |
-| Listar ativas | GET | `/api/especialidades/ativas` | Registro inativo não aparece |
-| Reativar | PATCH | `/api/especialidades/{id}/ativo?ativo=true` | `200 OK` |
+| Etapa                 | Método | Caminho                                      | Resultado esperado             |
+| --------------------- | ------ | -------------------------------------------- | ------------------------------ |
+| Consultar banco vazio | GET    | `/api/especialidades`                        | `200 OK`, `[]`                 |
+| Cadastrar             | POST   | `/api/especialidades`                        | `201 Created`, registro com ID |
+| Listar                | GET    | `/api/especialidades`                        | `200 OK`, registro incluído    |
+| Consultar por ID      | GET    | `/api/especialidades/{id}`                   | `200 OK`                       |
+| Atualizar             | PUT    | `/api/especialidades/{id}`                   | `200 OK`                       |
+| Inativar              | PATCH  | `/api/especialidades/{id}/ativo?ativo=false` | `200 OK`                       |
+| Listar ativas         | GET    | `/api/especialidades/ativas`                 | Registro inativo não aparece   |
+| Reativar              | PATCH  | `/api/especialidades/{id}/ativo?ativo=true`  | `200 OK`                       |
 
 Exemplo de POST:
 
@@ -209,13 +209,13 @@ A aplicação utiliza **inativação lógica** nesses cadastros; não há endpoi
 
 Endpoints implementados para cada recurso:
 
-| Operação | Paciente | Profissional |
-|---|---|---|
-| Cadastrar | `POST /api/pacientes` | `POST /api/profissionais` |
-| Listar | `GET /api/pacientes` | `GET /api/profissionais` |
-| Consultar | `GET /api/pacientes/{id}` | `GET /api/profissionais/{id}` |
-| Atualizar | `PUT /api/pacientes/{id}` | `PUT /api/profissionais/{id}` |
-| Listar ativos | `GET /api/pacientes/ativos` | `GET /api/profissionais/ativos` |
+| Operação          | Paciente                                      | Profissional                                      |
+| ----------------- | --------------------------------------------- | ------------------------------------------------- |
+| Cadastrar         | `POST /api/pacientes`                         | `POST /api/profissionais`                         |
+| Listar            | `GET /api/pacientes`                          | `GET /api/profissionais`                          |
+| Consultar         | `GET /api/pacientes/{id}`                     | `GET /api/profissionais/{id}`                     |
+| Atualizar         | `PUT /api/pacientes/{id}`                     | `PUT /api/profissionais/{id}`                     |
+| Listar ativos     | `GET /api/pacientes/ativos`                   | `GET /api/profissionais/ativos`                   |
 | Inativar/reativar | `PATCH /api/pacientes/{id}/ativo?ativo=false` | `PATCH /api/profissionais/{id}/ativo?ativo=false` |
 
 Use **dados inteiramente fictícios**, de acordo com os campos exigidos pelos respectivos RequestDTOs. O campo opcional `cadastradoPorId` pode ser omitido no cadastro inicial, sem criar um usuário fictício no banco. Consulte no DBeaver:

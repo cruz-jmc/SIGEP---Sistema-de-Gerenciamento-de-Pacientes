@@ -1,0 +1,28 @@
+name: Local
+variables:
+  - name: baseUrl
+    value: http://localhost:8080
+  - name: pacienteId
+    value:
+      type: number
+      data: "2"
+  - name: profissionalId
+    value:
+      type: number
+      data: "3"
+  - name: usuarioId
+    value: "1"
+  - name: statusSolicitacao
+    value: PENDENTE
+  - name: solicitacaoId
+    value:
+      type: number
+      data: "2"
+  - name: planoId
+    value:
+      type: number
+      data: "1"
+  - name: sessaoId
+    value:
+      type: number
+      data: "1"

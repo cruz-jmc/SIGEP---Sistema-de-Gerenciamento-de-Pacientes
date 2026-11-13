@@ -1,0 +1,37 @@
+info:
+  name: Cadastrar paciente
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/pacientes
+  body:
+    type: json
+    data: |-
+      {
+        "nomeCompleto": "Mariazinha",
+        "cpf": "00000000002",
+        "dataNascimento": "1990-01-15",
+        "cartaoSus": "000000000000002",
+        "telefone": "00000000000",
+        "endereco": "Rua Ficticia, 100",
+        "ubsOrigem": "UBS Ficticia CP3"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const paciente = res.getBody();
+
+        if (res.getStatus() === 201 && paciente?.id != null) {
+          bru.setEnvVar("pacienteId", paciente.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

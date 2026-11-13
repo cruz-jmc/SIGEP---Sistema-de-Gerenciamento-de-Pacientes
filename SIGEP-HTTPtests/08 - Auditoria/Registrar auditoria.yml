@@ -1,0 +1,30 @@
+info:
+  name: Registrar auditoria
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auditorias"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario": {
+          "id": 1,
+          "ativo": true,
+          "primeiroAcesso": true
+        },
+        "tabelaNome": "paciente",
+        "registroId": 2,
+        "acao": "ATUALIZACAO",
+        "dadosAnteriores": null,
+        "dadosNovos": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

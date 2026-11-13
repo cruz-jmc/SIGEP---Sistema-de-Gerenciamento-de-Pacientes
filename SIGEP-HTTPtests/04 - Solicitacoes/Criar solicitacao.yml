@@ -1,0 +1,45 @@
+info:
+  name: Criar solicitacao
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/solicitacoes"
+  body:
+    type: json
+    data: |-
+      {
+        "grupo": "GRUPO_A",
+        "dataAtendimentoInicial": "2026-11-20",
+        "paciente": {
+          "id": 2,
+          "ativo": true
+        },
+        "especialidade": {
+          "id": 1,
+          "ativo": true
+        },
+        "cadastradoPor": {
+          "id": 1,
+          "ativo": true,
+          "primeiroAcesso": false
+        }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const solicitacao = res.getBody();
+
+        if (res.getStatus() === 200 && solicitacao?.id != null) {
+            bru.setEnvVar("solicitacaoId", solicitacao.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

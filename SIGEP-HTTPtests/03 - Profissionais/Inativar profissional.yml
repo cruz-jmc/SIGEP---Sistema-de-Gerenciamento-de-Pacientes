@@ -1,0 +1,18 @@
+info:
+  name: Inativar profissional
+  type: http
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/profissionais/{{profissionalId}}/ativo?ativo=false"
+  params:
+    - name: ativo
+      value: "false"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

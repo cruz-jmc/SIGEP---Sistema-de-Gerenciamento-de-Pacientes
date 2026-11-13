@@ -1,0 +1,22 @@
+info:
+  name: Especialidade duplicada
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/especialidades"
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Fisioterapia",
+        "descricao": "Teste de duplicidade"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

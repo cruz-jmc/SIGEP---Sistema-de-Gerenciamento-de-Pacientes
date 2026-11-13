@@ -1,0 +1,14 @@
+info:
+  name: Buscar por paciente e status
+  type: http
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/planos-tratamento/paciente/{{pacienteId}}/status/ATIVO"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
