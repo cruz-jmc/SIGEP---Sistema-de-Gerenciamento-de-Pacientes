@@ -59,9 +59,10 @@ public class PacienteController {
         return ResponseEntity.ok(PacienteMapper.toResponse(service.atualizar(entidade)));
     }
 
-    @PatchMapping("/{id}/ativo")
-    public ResponseEntity<PacienteResponseDTO> alterarAtivo(
-            @PathVariable Long id, @RequestParam boolean ativo) {
-        return ResponseEntity.ok(PacienteMapper.toResponse(service.alterarAtivo(id, ativo)));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> inativar(@PathVariable Long id) {
+        service.inativar(id);
+        return ResponseEntity.noContent().build();
+
     }
 }

@@ -25,15 +25,18 @@ public class PacienteService {
         if (pacienteRepository.existsByCpf(paciente.getCpf())) throw new IllegalArgumentException("CPF já cadastrado.");
         if (pacienteRepository.existsByCartaoSus(paciente.getCartaoSus())) throw new IllegalArgumentException("Cartão SUS já cadastrado.");
         paciente.setAtivo(true);
-        paciente.setCriadoEm(LocalDateTime.now());
         paciente.setCadastradoPor(resolverCadastrador(paciente.getCadastradoPor()));
         return pacienteRepository.save(paciente);
     }
 
-    @Transactional(readOnly = true) public List<Paciente> listar() { return pacienteRepository.findAll(); }
-    @Transactional(readOnly = true) public List<Paciente> listarAtivos() { return pacienteRepository.findByAtivoTrue(); }
-    @Transactional(readOnly = true) public Optional<Paciente> buscarPorId(Long id) { return pacienteRepository.findById(id); }
-    @Transactional(readOnly = true) public Optional<Paciente> buscarPorCpf(String cpf) { return pacienteRepository.findByCpf(cpf); }
+    @Transactional(readOnly = true)
+    public List<Paciente> listar() { return pacienteRepository.findAll(); }
+    @Transactional(readOnly = true)
+    public List<Paciente> listarAtivos() { return pacienteRepository.findByAtivoTrue(); }
+    @Transactional(readOnly = true)
+    public Optional<Paciente> buscarPorId(Long id) { return pacienteRepository.findById(id); }
+    @Transactional(readOnly = true)
+    public Optional<Paciente> buscarPorCpf(String cpf) { return pacienteRepository.findByCpf(cpf); }
 
     @Transactional
     public Paciente atualizar(Paciente paciente) {
@@ -54,9 +57,9 @@ public class PacienteService {
     }
 
     @Transactional
-    public Paciente alterarAtivo(Long id, boolean ativo) {
+    public Paciente inativar(Long id) {
         Paciente paciente = pacienteRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado."));
-        paciente.setAtivo(ativo);
+        paciente.setAtivo(false);
         return pacienteRepository.save(paciente);
     }
 

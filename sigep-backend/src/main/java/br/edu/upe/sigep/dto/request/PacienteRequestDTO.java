@@ -3,6 +3,7 @@ package br.edu.upe.sigep.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ public record PacienteRequestDTO(
         String nomeCompleto,
 
         @NotBlank
-        @Size(max = 11)
+        @CPF
         String cpf,
 
         @NotNull
