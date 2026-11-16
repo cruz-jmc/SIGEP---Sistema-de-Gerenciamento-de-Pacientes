@@ -1,9 +1,11 @@
 package br.edu.upe.sigep.service.impl;
 
-import br.edu.upe.sigep.entity.SolicitacaoAgendamento;
+import br.edu.upe.sigep.dto.request.SolicitacaoAgendamentoRequestDTO;
+import br.edu.upe.sigep.dto.response.SolicitacaoAgendamentoResponseDTO;
+import br.edu.upe.sigep.entity.*;
 import br.edu.upe.sigep.enums.StatusSolicitacao;
-import br.edu.upe.sigep.repository.SolicitacaoAgendamentoRepository;
-import br.edu.upe.sigep.repository.UsuarioRepository;
+import br.edu.upe.sigep.mapper.SolicitacaoAgendamentoMapper;
+import br.edu.upe.sigep.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,63 +19,99 @@ import java.util.Optional;
 public class SolicitacaoAgendamentoService {
 
     private final SolicitacaoAgendamentoRepository solicitacaoAgendamentoRepository;
+    private final PacienteRepository pacienteRepository;
+    private final EspecialidadeRepository especialidadeRepository;
+    private final ProfissionalRepository profissionalRepository;
     private final UsuarioRepository usuarioRepository;
+    private final SolicitacaoAgendamentoMapper mapper;
 
     @Transactional
-    public SolicitacaoAgendamento salvar(SolicitacaoAgendamento solicitacao) {
-        if (solicitacao.getCriadoEm() == null) {
-            solicitacao.setCriadoEm(LocalDateTime.now());
+    public SolicitacaoAgendamentoResponseDTO salvar(SolicitacaoAgendamentoRequestDTO dto) {
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado com ID: " + dto.getPacienteId()));
+
+        Especialidade especialidade = especialidadeRepository.findById(dto.getEspecialidadeId())
+                .orElseThrow(() -> new IllegalArgumentException("Especialidade não encontrada com ID: " + dto.getEspecialidadeId()));
+
+        Usuario cadastradoPor = usuarioRepository.findById(dto.getCadastradoPorId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + dto.getCadastradoPorId()));
+
+        Profissional profissional = null;
+        if (dto.getProfissionalId() != null) {
+            profissional = profissionalRepository.findById(dto.getProfissionalId())
+                    .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado com ID: " + dto.getProfissionalId()));
         }
-        if (solicitacao.getStatusSolicitacao() == null) {
-            solicitacao.setStatusSolicitacao(StatusSolicitacao.PENDENTE);
-        }
-        return solicitacaoAgendamentoRepository.save(solicitacao);
+
+        SolicitacaoAgendamento solicitacao = mapper.toEntity(dto, paciente, especialidade, profissional, cadastradoPor);
+        solicitacao.setCriadoEm(LocalDateTime.now());
+        solicitacao.setStatusSolicitacao(StatusSolicitacao.PENDENTE);
+
+        SolicitacaoAgendamento salva = solicitacaoAgendamentoRepository.save(solicitacao);
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitacaoAgendamento> listarTodas() {
-        return solicitacaoAgendamentoRepository.findAll();
+    public List<SolicitacaoAgendamentoResponseDTO> listarTodas() {
+        return solicitacaoAgendamentoRepository.findAll()
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Optional<SolicitacaoAgendamento> buscarPorId(Long id) {
-        return solicitacaoAgendamentoRepository.findById(id);
+    public Optional<SolicitacaoAgendamentoResponseDTO> buscarPorId(Long id) {
+        return solicitacaoAgendamentoRepository.findById(id)
+                .map(mapper::toResponseDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitacaoAgendamento> buscarPorPaciente(Long pacienteId) {
-        return solicitacaoAgendamentoRepository.findByPacienteId(pacienteId);
+    public List<SolicitacaoAgendamentoResponseDTO> buscarPorPaciente(Long pacienteId) {
+        return solicitacaoAgendamentoRepository.findByPacienteId(pacienteId)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitacaoAgendamento> buscarPorStatus(StatusSolicitacao status) {
-        return solicitacaoAgendamentoRepository.findByStatusSolicitacao(status);
+    public List<SolicitacaoAgendamentoResponseDTO> buscarPorStatus(StatusSolicitacao status) {
+        return solicitacaoAgendamentoRepository.findByStatusSolicitacao(status)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolicitacaoAgendamentoResponseDTO> listarPendentes() {
+        return solicitacaoAgendamentoRepository.findByStatusSolicitacao(StatusSolicitacao.PENDENTE)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
     @Transactional
-    public SolicitacaoAgendamento aprovarSolicitacao(Long id, Long revisorId) {
+    public SolicitacaoAgendamentoResponseDTO aprovarSolicitacao(Long id, Long revisorId) {
         if (revisorId == null) {
             throw new IllegalArgumentException("O usuário revisor é obrigatório.");
         }
 
         SolicitacaoAgendamento solicitacao = solicitacaoAgendamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada com ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com ID: " + id));
 
         var revisor = usuarioRepository.findById(revisorId)
-                .orElseThrow(() -> new RuntimeException("Usuário revisor não encontrado com ID: " + revisorId));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário revisor não encontrado com ID: " + revisorId));
 
         if (solicitacao.getStatusSolicitacao() != StatusSolicitacao.PENDENTE) {
-            throw new IllegalStateException("Esta solicitação já foi analisada anteriormente.");
+            throw new IllegalArgumentException("Esta solicitação já foi analisada anteriormente.");
         }
 
         solicitacao.setAnalisadoPor(revisor);
         solicitacao.setRevisadoEm(LocalDateTime.now());
         solicitacao.setStatusSolicitacao(StatusSolicitacao.APROVADA);
-        return solicitacaoAgendamentoRepository.save(solicitacao);
+        return mapper.toResponseDTO(solicitacaoAgendamentoRepository.save(solicitacao));
     }
 
     @Transactional
-    public SolicitacaoAgendamento rejeitarSolicitacao(Long id, Long revisorId, String motivo) {
+    public SolicitacaoAgendamentoResponseDTO rejeitarSolicitacao(Long id, Long revisorId, String motivo) {
         if (motivo == null || motivo.trim().isEmpty()) {
             throw new IllegalArgumentException("O motivo da rejeição é obrigatório.");
         }
@@ -82,19 +120,19 @@ public class SolicitacaoAgendamentoService {
         }
 
         SolicitacaoAgendamento solicitacao = solicitacaoAgendamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada com ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com ID: " + id));
 
         var revisor = usuarioRepository.findById(revisorId)
-                .orElseThrow(() -> new RuntimeException("Usuário revisor não encontrado com ID: " + revisorId));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário revisor não encontrado com ID: " + revisorId));
 
         if (solicitacao.getStatusSolicitacao() != StatusSolicitacao.PENDENTE) {
-            throw new IllegalStateException("Esta solicitação já foi analisada anteriormente.");
+            throw new IllegalArgumentException("Esta solicitação já foi analisada anteriormente.");
         }
 
         solicitacao.setAnalisadoPor(revisor);
         solicitacao.setMotivoRejeicao(motivo);
         solicitacao.setRevisadoEm(LocalDateTime.now());
         solicitacao.setStatusSolicitacao(StatusSolicitacao.REJEITADA);
-        return solicitacaoAgendamentoRepository.save(solicitacao);
+        return mapper.toResponseDTO(solicitacaoAgendamentoRepository.save(solicitacao));
     }
 }
