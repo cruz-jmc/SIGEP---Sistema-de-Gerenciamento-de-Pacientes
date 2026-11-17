@@ -1,10 +1,12 @@
-
 package br.edu.upe.sigep.controller;
 
-import br.edu.upe.sigep.entity.SolicitacaoAgendamento;
+import br.edu.upe.sigep.dto.request.SolicitacaoAgendamentoRequestDTO;
+import br.edu.upe.sigep.dto.response.SolicitacaoAgendamentoResponseDTO;
 import br.edu.upe.sigep.enums.StatusSolicitacao;
 import br.edu.upe.sigep.service.impl.SolicitacaoAgendamentoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,18 +20,18 @@ public class SolicitacaoAgendamentoController {
     private final SolicitacaoAgendamentoService solicitacaoService;
 
     @PostMapping
-    public ResponseEntity<SolicitacaoAgendamento> criar(
-            @RequestBody SolicitacaoAgendamento solicitacao) {
-        return ResponseEntity.ok(solicitacaoService.salvar(solicitacao));
+    public ResponseEntity<SolicitacaoAgendamentoResponseDTO> criar(
+            @Valid @RequestBody SolicitacaoAgendamentoRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(solicitacaoService.salvar(dto));
     }
 
     @GetMapping
-    public ResponseEntity<List<SolicitacaoAgendamento>> listarTodas() {
+    public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> listarTodas() {
         return ResponseEntity.ok(solicitacaoService.listarTodas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SolicitacaoAgendamento> buscarPorId(
+    public ResponseEntity<SolicitacaoAgendamentoResponseDTO> buscarPorId(
             @PathVariable Long id) {
         return solicitacaoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -37,33 +39,29 @@ public class SolicitacaoAgendamentoController {
     }
 
     @GetMapping("/paciente/{pacienteId}")
-    public ResponseEntity<List<SolicitacaoAgendamento>> buscarPorPaciente(
+    public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> buscarPorPaciente(
             @PathVariable Long pacienteId) {
-        return ResponseEntity.ok(
-                solicitacaoService.buscarPorPaciente(pacienteId));
+        return ResponseEntity.ok(solicitacaoService.buscarPorPaciente(pacienteId));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<SolicitacaoAgendamento>> buscarPorStatus(
+    public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> buscarPorStatus(
             @PathVariable StatusSolicitacao status) {
-        return ResponseEntity.ok(
-                solicitacaoService.buscarPorStatus(status));
+        return ResponseEntity.ok(solicitacaoService.buscarPorStatus(status));
     }
 
     @PatchMapping("/{id}/aprovar")
-    public ResponseEntity<SolicitacaoAgendamento> aprovar(
+    public ResponseEntity<SolicitacaoAgendamentoResponseDTO> aprovar(
             @PathVariable Long id,
             @RequestParam Long revisorId) {
-        return ResponseEntity.ok(
-                solicitacaoService.aprovarSolicitacao(id, revisorId));
+        return ResponseEntity.ok(solicitacaoService.aprovarSolicitacao(id, revisorId));
     }
 
     @PatchMapping("/{id}/rejeitar")
-    public ResponseEntity<SolicitacaoAgendamento> rejeitar(
+    public ResponseEntity<SolicitacaoAgendamentoResponseDTO> rejeitar(
             @PathVariable Long id,
             @RequestParam Long revisorId,
             @RequestBody String motivo) {
-        return ResponseEntity.ok(
-                solicitacaoService.rejeitarSolicitacao(id, revisorId, motivo));
+        return ResponseEntity.ok(solicitacaoService.rejeitarSolicitacao(id, revisorId, motivo));
     }
 }

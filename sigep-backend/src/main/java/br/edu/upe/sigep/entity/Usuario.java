@@ -1,6 +1,7 @@
 package br.edu.upe.sigep.entity;
 
 import br.edu.upe.sigep.enums.PerfilUsuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,8 @@ public class Usuario {
     private String nome;
     @Column(length = 255, nullable = false, unique = true)
     private String email;
+
+    @JsonIgnore
     @Column(name = "senha_hash", length = 255, nullable = false)
     private String senhaHash;
     @Enumerated(EnumType.STRING)
