@@ -19,19 +19,22 @@ public class PlanoTratamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusTratamento statusPlano;
+
     @Column(name = "aprovado_em")
     private LocalDateTime aprovadoEm;
+
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
 
     @OneToOne
-    @JoinColumn(name = "solicitacao_id",nullable = false, unique = true)
+    @JoinColumn(name = "solicitacao_id", nullable = false, unique = true)
     private SolicitacaoAgendamento solicitacao;
 
     @ManyToOne
-    @JoinColumn(name = "aprovado_por",nullable = false)
+    @JoinColumn(name = "aprovado_por", nullable = false)
     private Usuario aprovadoPor;
 }
