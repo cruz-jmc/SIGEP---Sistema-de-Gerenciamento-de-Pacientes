@@ -4,6 +4,7 @@ import br.edu.upe.sigep.entity.Paciente;
 import br.edu.upe.sigep.entity.Usuario;
 import br.edu.upe.sigep.repository.PacienteRepository;
 import br.edu.upe.sigep.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,17 @@ public class PacienteService {
         paciente.setAtivo(false);
         return pacienteRepository.save(paciente);
     }
+
+    @Transactional
+    public void reativar(Long id) {
+        Paciente paciente = pacienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+        paciente.setAtivo(true);
+        pacienteRepository.save(paciente);
+    }
+
+
+
 
     private void validar(Paciente p) {
         if (p == null || vazio(p.getNomeCompleto()) || vazio(p.getCpf()) || p.getDataNascimento() == null || vazio(p.getCartaoSus())
