@@ -22,12 +22,18 @@ public class SolicitacaoAgendamentoController {
     @PostMapping
     public ResponseEntity<SolicitacaoAgendamentoResponseDTO> criar(
             @Valid @RequestBody SolicitacaoAgendamentoRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(solicitacaoService.salvar(dto));
+        SolicitacaoAgendamentoResponseDTO criada = solicitacaoService.salvar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(criada);
     }
 
     @GetMapping
     public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> listarTodas() {
         return ResponseEntity.ok(solicitacaoService.listarTodas());
+    }
+
+    @GetMapping("/pendentes")
+    public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> listarPendentes() {
+        return ResponseEntity.ok(solicitacaoService.listarPendentes());
     }
 
     @GetMapping("/{id}")
@@ -41,20 +47,23 @@ public class SolicitacaoAgendamentoController {
     @GetMapping("/paciente/{pacienteId}")
     public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> buscarPorPaciente(
             @PathVariable Long pacienteId) {
-        return ResponseEntity.ok(solicitacaoService.buscarPorPaciente(pacienteId));
+        return ResponseEntity.ok(
+                solicitacaoService.buscarPorPaciente(pacienteId));
     }
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<SolicitacaoAgendamentoResponseDTO>> buscarPorStatus(
             @PathVariable StatusSolicitacao status) {
-        return ResponseEntity.ok(solicitacaoService.buscarPorStatus(status));
+        return ResponseEntity.ok(
+                solicitacaoService.buscarPorStatus(status));
     }
 
     @PatchMapping("/{id}/aprovar")
     public ResponseEntity<SolicitacaoAgendamentoResponseDTO> aprovar(
             @PathVariable Long id,
             @RequestParam Long revisorId) {
-        return ResponseEntity.ok(solicitacaoService.aprovarSolicitacao(id, revisorId));
+        return ResponseEntity.ok(
+                solicitacaoService.aprovarSolicitacao(id, revisorId));
     }
 
     @PatchMapping("/{id}/rejeitar")
@@ -62,6 +71,7 @@ public class SolicitacaoAgendamentoController {
             @PathVariable Long id,
             @RequestParam Long revisorId,
             @RequestBody String motivo) {
-        return ResponseEntity.ok(solicitacaoService.rejeitarSolicitacao(id, revisorId, motivo));
+        return ResponseEntity.ok(
+                solicitacaoService.rejeitarSolicitacao(id, revisorId, motivo));
     }
 }

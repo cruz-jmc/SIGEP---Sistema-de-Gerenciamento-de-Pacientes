@@ -2,9 +2,7 @@ package br.edu.upe.sigep.service.impl;
 
 import br.edu.upe.sigep.dto.request.SolicitacaoAgendamentoRequestDTO;
 import br.edu.upe.sigep.dto.response.SolicitacaoAgendamentoResponseDTO;
-import br.edu.upe.sigep.entity.PlanoTratamento;
-import br.edu.upe.sigep.entity.Profissional;
-import br.edu.upe.sigep.entity.SolicitacaoAgendamento;
+import br.edu.upe.sigep.entity.*;
 import br.edu.upe.sigep.enums.StatusSolicitacao;
 import br.edu.upe.sigep.enums.StatusTratamento;
 import br.edu.upe.sigep.mapper.SolicitacaoAgendamentoMapper;
@@ -31,32 +29,27 @@ public class SolicitacaoAgendamentoService {
 
     @Transactional
     public SolicitacaoAgendamentoResponseDTO salvar(SolicitacaoAgendamentoRequestDTO dto) {
-        var paciente = pacienteRepository.findById(dto.pacienteId())
-                .orElseThrow(() -> new RuntimeException("Paciente não encontrado com ID: " + dto.pacienteId()));
+        Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
+                .orElseThrow(() -> new IllegalArgumentException("Paciente não encontrado com ID: " + dto.getPacienteId()));
 
-        var especialidade = especialidadeRepository.findById(dto.especialidadeId())
-                .orElseThrow(() -> new RuntimeException("Especialidade não encontrada com ID: " + dto.especialidadeId()));
+        Especialidade especialidade = especialidadeRepository.findById(dto.getEspecialidadeId())
+                .orElseThrow(() -> new IllegalArgumentException("Especialidade não encontrada com ID: " + dto.getEspecialidadeId()));
 
-        var cadastradoPor = usuarioRepository.findById(dto.cadastradoPorId())
-                .orElseThrow(() -> new RuntimeException("Usuário cadastrador não encontrado com ID: " + dto.cadastradoPorId()));
+        Usuario cadastradoPor = usuarioRepository.findById(dto.getCadastradoPorId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + dto.getCadastradoPorId()));
 
         Profissional profissional = null;
-        if (dto.profissionalId() != null) {
-            profissional = profissionalRepository.findById(dto.profissionalId())
-                    .orElseThrow(() -> new RuntimeException("Profissional não encontrado com ID: " + dto.profissionalId()));
+        if (dto.getProfissionalId() != null) {
+            profissional = profissionalRepository.findById(dto.getProfissionalId())
+                    .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado com ID: " + dto.getProfissionalId()));
         }
 
-        SolicitacaoAgendamento solicitacao = new SolicitacaoAgendamento();
-        solicitacao.setGrupo(dto.grupo());
-        solicitacao.setDataAtendimentoInicial(dto.dataAtendimentoInicial());
-        solicitacao.setStatusSolicitacao(StatusSolicitacao.PENDENTE);
+        SolicitacaoAgendamento solicitacao = mapper.toEntity(dto, paciente, especialidade, profissional, cadastradoPor);
         solicitacao.setCriadoEm(LocalDateTime.now());
-        solicitacao.setPaciente(paciente);
-        solicitacao.setEspecialidade(especialidade);
-        solicitacao.setProfissional(profissional);
-        solicitacao.setCadastradoPor(cadastradoPor);
+        solicitacao.setStatusSolicitacao(StatusSolicitacao.PENDENTE);
 
-        return mapper.toResponseDTO(solicitacaoAgendamentoRepository.save(solicitacao));
+        SolicitacaoAgendamento salva = solicitacaoAgendamentoRepository.save(solicitacao);
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional(readOnly = true)
@@ -89,6 +82,14 @@ public class SolicitacaoAgendamentoService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<SolicitacaoAgendamentoResponseDTO> listarPendentes() {
+        return solicitacaoAgendamentoRepository.findByStatusSolicitacao(StatusSolicitacao.PENDENTE)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
     @Transactional
     public SolicitacaoAgendamentoResponseDTO aprovarSolicitacao(Long id, Long revisorId) {
         if (revisorId == null) {
@@ -96,13 +97,13 @@ public class SolicitacaoAgendamentoService {
         }
 
         SolicitacaoAgendamento solicitacao = solicitacaoAgendamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada com ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com ID: " + id));
 
         var revisor = usuarioRepository.findById(revisorId)
-                .orElseThrow(() -> new RuntimeException("Usuário revisor não encontrado com ID: " + revisorId));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário revisor não encontrado com ID: " + revisorId));
 
         if (solicitacao.getStatusSolicitacao() != StatusSolicitacao.PENDENTE) {
-            throw new IllegalStateException("Esta solicitação já foi analisada anteriormente.");
+            throw new IllegalArgumentException("Esta solicitação já foi analisada anteriormente.");
         }
 
         LocalDateTime agora = LocalDateTime.now();
@@ -132,13 +133,13 @@ public class SolicitacaoAgendamentoService {
         }
 
         SolicitacaoAgendamento solicitacao = solicitacaoAgendamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Solicitação não encontrada com ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Solicitação não encontrada com ID: " + id));
 
         var revisor = usuarioRepository.findById(revisorId)
-                .orElseThrow(() -> new RuntimeException("Usuário revisor não encontrado com ID: " + revisorId));
+                .orElseThrow(() -> new IllegalArgumentException("Usuário revisor não encontrado com ID: " + revisorId));
 
         if (solicitacao.getStatusSolicitacao() != StatusSolicitacao.PENDENTE) {
-            throw new IllegalStateException("Esta solicitação já foi analisada anteriormente.");
+            throw new IllegalArgumentException("Esta solicitação já foi analisada anteriormente.");
         }
 
         solicitacao.setAnalisadoPor(revisor);
