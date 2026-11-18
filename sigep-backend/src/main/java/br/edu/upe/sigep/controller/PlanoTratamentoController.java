@@ -1,6 +1,6 @@
 package br.edu.upe.sigep.controller;
 
-import br.edu.upe.sigep.entity.PlanoTratamento;
+import br.edu.upe.sigep.dto.response.PlanoTratamentoResponseDTO;
 import br.edu.upe.sigep.enums.StatusTratamento;
 import br.edu.upe.sigep.service.impl.PlanoTratamentoService;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ public class PlanoTratamentoController {
     private final PlanoTratamentoService planoTratamentoService;
 
     @GetMapping
-    public ResponseEntity<List<PlanoTratamento>> listarTodos() {
+    public ResponseEntity<List<PlanoTratamentoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(planoTratamentoService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlanoTratamento> buscarPorId(
+    public ResponseEntity<PlanoTratamentoResponseDTO> buscarPorId(
             @PathVariable Long id) {
         return planoTratamentoService.buscarPorId(id)
                 .map(ResponseEntity::ok)
@@ -30,7 +30,7 @@ public class PlanoTratamentoController {
     }
 
     @GetMapping("/solicitacao/{solicitacaoId}")
-    public ResponseEntity<PlanoTratamento> buscarPorSolicitacao(
+    public ResponseEntity<PlanoTratamentoResponseDTO> buscarPorSolicitacao(
             @PathVariable Long solicitacaoId) {
         return planoTratamentoService.buscarPorSolicitacao(solicitacaoId)
                 .map(ResponseEntity::ok)
@@ -38,7 +38,7 @@ public class PlanoTratamentoController {
     }
 
     @GetMapping("/paciente/{pacienteId}/status/{status}")
-    public ResponseEntity<List<PlanoTratamento>> buscarPorPacienteEStatus(
+    public ResponseEntity<List<PlanoTratamentoResponseDTO>> buscarPorPacienteEStatus(
             @PathVariable Long pacienteId,
             @PathVariable StatusTratamento status) {
         return ResponseEntity.ok(
@@ -46,14 +46,14 @@ public class PlanoTratamentoController {
     }
 
     @PatchMapping("/{id}/concluir")
-    public ResponseEntity<PlanoTratamento> concluir(
+    public ResponseEntity<PlanoTratamentoResponseDTO> concluir(
             @PathVariable Long id) {
         return ResponseEntity.ok(
                 planoTratamentoService.concluirPlano(id));
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<PlanoTratamento> cancelar(
+    public ResponseEntity<PlanoTratamentoResponseDTO> cancelar(
             @PathVariable Long id) {
         return ResponseEntity.ok(
                 planoTratamentoService.cancelarPlano(id));

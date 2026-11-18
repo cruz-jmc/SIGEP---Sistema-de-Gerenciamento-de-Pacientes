@@ -5,16 +5,16 @@ info:
 
 http:
   method: PUT
-  url: "{{baseUrl}}/api/pacientes/{{pacienteId}}"
+  url: http://localhost:8080/api/pacientes/1
   body:
     type: json
     data: |-
       {
         "nomeCompleto": "Paciente Ficticio CP3",
-        "cpf": "00000000001",
+        "cpf": "15079975407",
         "dataNascimento": "1990-01-15",
         "cartaoSus": "000000000000001",
-        "telefone": "00000000000",
+        "telefone": "11111111111",
         "endereco": "Rua Ficticia, 200",
         "ubsOrigem": "UBS Ficticia CP3"
       }
