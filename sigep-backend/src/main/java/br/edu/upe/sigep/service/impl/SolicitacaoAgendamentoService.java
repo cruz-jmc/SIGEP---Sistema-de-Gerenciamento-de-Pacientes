@@ -4,6 +4,7 @@ import br.edu.upe.sigep.dto.request.SolicitacaoAgendamentoRequestDTO;
 import br.edu.upe.sigep.dto.response.SolicitacaoAgendamentoResponseDTO;
 import br.edu.upe.sigep.entity.*;
 import br.edu.upe.sigep.enums.StatusSolicitacao;
+import br.edu.upe.sigep.enums.StatusTratamento;
 import br.edu.upe.sigep.mapper.SolicitacaoAgendamentoMapper;
 import br.edu.upe.sigep.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class SolicitacaoAgendamentoService {
 
     private final SolicitacaoAgendamentoRepository solicitacaoAgendamentoRepository;
+    private final PlanoTratamentoRepository planoTratamentoRepository;
     private final PacienteRepository pacienteRepository;
     private final EspecialidadeRepository especialidadeRepository;
     private final ProfissionalRepository profissionalRepository;
@@ -104,10 +106,21 @@ public class SolicitacaoAgendamentoService {
             throw new IllegalArgumentException("Esta solicitação já foi analisada anteriormente.");
         }
 
+        LocalDateTime agora = LocalDateTime.now();
         solicitacao.setAnalisadoPor(revisor);
-        solicitacao.setRevisadoEm(LocalDateTime.now());
+        solicitacao.setRevisadoEm(agora);
         solicitacao.setStatusSolicitacao(StatusSolicitacao.APROVADA);
-        return mapper.toResponseDTO(solicitacaoAgendamentoRepository.save(solicitacao));
+        SolicitacaoAgendamento salva = solicitacaoAgendamentoRepository.save(solicitacao);
+
+        PlanoTratamento plano = new PlanoTratamento();
+        plano.setSolicitacao(salva);
+        plano.setAprovadoPor(revisor);
+        plano.setStatusPlano(StatusTratamento.ATIVO);
+        plano.setCriadoEm(agora);
+        plano.setAprovadoEm(agora);
+        planoTratamentoRepository.save(plano);
+
+        return mapper.toResponseDTO(salva);
     }
 
     @Transactional
