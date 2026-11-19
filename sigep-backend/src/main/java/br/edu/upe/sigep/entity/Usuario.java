@@ -34,9 +34,16 @@ public class Usuario {
     private boolean ativo;
     @Column(name= "primeiro_acesso", nullable = false)
     private boolean primeiroAcesso = true;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criado_por")
-    private Usuario criadorPor;
+    private Usuario criadoPor;
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
+
+    @PrePersist
+    public void prePersist() {
+        if (criadoEm == null) {
+            criadoEm = LocalDateTime.now();
+        }
+    }
 }
