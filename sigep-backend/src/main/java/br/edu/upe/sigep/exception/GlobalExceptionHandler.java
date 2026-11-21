@@ -14,18 +14,70 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(
+            IllegalArgumentException ex) {
+
         Map<String, String> erro = new HashMap<>();
         erro.put("erro", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+
         Map<String, String> erros = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach((FieldError error) ->
-                erros.put(error.getField(), error.getDefaultMessage())
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erros);
+
+        ex.getBindingResult()
+                .getFieldErrors()
+                .forEach((FieldError error) ->
+                        erros.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erros);
+    }
+
+    @ExceptionHandler(ConviteInvalidoException.class)
+    public ResponseEntity<Map<String, String>> handleConviteInvalido(
+            ConviteInvalidoException ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("erro", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
+    @ExceptionHandler(EmailJaCadastradoException.class)
+    public ResponseEntity<Map<String, String>> handleEmailDuplicado(
+            EmailJaCadastradoException ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("erro", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(erro);
+    }
+
+    @ExceptionHandler(OperacaoNaoPermitidaException.class)
+    public ResponseEntity<Map<String, String>> handleOperacaoNaoPermitida(
+            OperacaoNaoPermitidaException ex) {
+
+        Map<String, String> erro = new HashMap<>();
+        erro.put("erro", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(erro);
     }
 }

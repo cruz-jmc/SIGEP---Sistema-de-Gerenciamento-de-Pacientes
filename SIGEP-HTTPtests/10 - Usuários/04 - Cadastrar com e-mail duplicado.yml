@@ -1,0 +1,42 @@
+info:
+  name: 04 - Cadastrar com e-mail duplicado
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/usuarios"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Funcionário Demonstração",
+        "email": "{{funcionarioEmail}}"
+      }
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 409", function () {
+          expect(res.getStatus()).to.equal(409);
+        });
+
+        test("Retorna o erro esperado", function () {
+          expect(res.getBody().erro === "Já existe um usuário cadastrado com esse e-mail.").to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

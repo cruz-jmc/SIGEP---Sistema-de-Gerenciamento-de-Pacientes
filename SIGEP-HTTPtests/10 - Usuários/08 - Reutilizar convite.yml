@@ -1,0 +1,44 @@
+info:
+  name: 08 - Reutilizar convite
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/ativacao"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: "{}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          token: bru.getEnvVar("ativacaoToken"),
+          senha: bru.getEnvVar("funcionarioSenha")
+        });
+    - type: tests
+      code: |-
+        test("HTTP 400", function () {
+          expect(res.getStatus()).to.equal(400);
+        });
+
+        test("Retorna o erro esperado", function () {
+          expect(res.getBody().erro === "Convite inválido ou expirado.").to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

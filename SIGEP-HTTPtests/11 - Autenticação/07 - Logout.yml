@@ -1,0 +1,39 @@
+info:
+  name: 07 - Logout
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auth/logout"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 302) {
+          bru.deleteVar("csrfToken");
+        }
+    - type: tests
+      code: |-
+        test("HTTP 302", function () {
+          expect(res.getStatus()).to.equal(302);
+        });
+
+        test("Redireciona para /login?logout", function () {
+          const destino = String(res.getHeader("location") || "").replace(/^https?:\/\/[^/]+/i, "");
+          expect(destino === "/login?logout").to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

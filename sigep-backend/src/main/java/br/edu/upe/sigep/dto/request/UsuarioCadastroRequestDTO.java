@@ -12,9 +12,7 @@ public record UsuarioCadastroRequestDTO(
 
         @NotBlank(message = "O e-mail é obrigatório")
         @Email(message = "Informe um e-mail válido")
-        String email,
-
-        @NotBlank(message = "A senha é obrigatória")
-        String senha
+        @Size(max = 255)
+        String email
 
 ) {}

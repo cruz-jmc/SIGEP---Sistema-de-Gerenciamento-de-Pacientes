@@ -1,0 +1,27 @@
+info:
+  name: 10 - Acessar usuários como funcionário
+  type: http
+  seq: 10
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/usuarios"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 403", function () {
+          expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

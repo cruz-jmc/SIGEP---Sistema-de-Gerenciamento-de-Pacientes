@@ -13,9 +13,17 @@ services:
       DB_URL: ${DB_URL:?DB_URL nao definida}
       DB_USERNAME: ${DB_USERNAME:?DB_USERNAME nao definido}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD nao definida}
+      SIGEP_ADMIN_NOME: ${SIGEP_ADMIN_NOME}
+      SIGEP_ADMIN_EMAIL: ${SIGEP_ADMIN_EMAIL}
+      SIGEP_ADMIN_SENHA: ${SIGEP_ADMIN_SENHA}
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
+      SIGEP_MAIL_FROM: "convites@sigep.example"
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
 
   db:
     image: postgres:17
@@ -33,6 +41,20 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    container_name: sigep-mailpit
+    ports:
+      - "127.0.0.1:8025:8025"
+    expose:
+      - "1025"
+    environment:
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_USERNAME: ""
+      SPRING_MAIL_PASSWORD: ""
+      SIGEP_MAIL_FROM: "convites@sigep.example"
 
 volumes:
   postgres_data:

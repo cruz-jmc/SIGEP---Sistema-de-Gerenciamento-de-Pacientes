@@ -1,0 +1,32 @@
+info:
+  name: 02 - Buscar funcionário por ID
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/usuarios/1"
+  headers:
+    - name: Accept
+      value: application/json
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Retorna o funcionário cadastrado", function () {
+          const dados = res.getBody();
+          expect(dados.id).to.equal(Number(bru.getVar("funcionarioId")));
+          expect(dados.email === bru.getEnvVar("funcionarioEmail")).to.be.true;
+          expect(dados.perfil).to.equal("FUNCIONARIO");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
