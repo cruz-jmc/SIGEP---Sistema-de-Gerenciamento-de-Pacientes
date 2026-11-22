@@ -25,15 +25,20 @@ public class Usuario {
     private String email;
 
     @JsonIgnore
-    @Column(name = "senha_hash", length = 255)
+    @Column(name = "senha_hash", length = 255, nullable = false)
     private String senhaHash;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PerfilUsuario perfil;
     @Column(nullable = false)
     private boolean ativo;
-    @Column(name= "primeiro_acesso", nullable = false)
-    private boolean primeiroAcesso = true;
+
+    // Preserva a leitura do campo legado em módulos que serializam associações com Usuario.
+    @Column(name = "primeiro_acesso", nullable = false, insertable = false, updatable = false)
+    private boolean primeiroAcesso;
+    @JsonIgnore
+    @Column(name = "revisao_credenciais", nullable = false)
+    private long revisaoCredenciais;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criado_por")
     private Usuario criadoPor;

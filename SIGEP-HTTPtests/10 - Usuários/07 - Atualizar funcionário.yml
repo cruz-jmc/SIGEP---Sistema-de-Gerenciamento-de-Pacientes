@@ -1,0 +1,51 @@
+info:
+  name: 07 - Atualizar funcionário
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/usuarios/{{funcionarioId}}"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: "{}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          nome: "Funcionário Atualizado",
+          email: bru.getEnvVar("funcionarioNovoEmail")
+        });
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 200) {
+          bru.setVar("funcionarioEmailAtual", res.getBody().email);
+        }
+    - type: tests
+      code: |-
+        test("HTTP 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+        test("Preserva o ID e atualiza nome e e-mail", function () {
+          const dados = res.getBody();
+          expect(dados.id).to.equal(Number(bru.getVar("funcionarioId")));
+          expect(dados.nome).to.equal("Funcionário Atualizado");
+          expect(dados.email === bru.getEnvVar("funcionarioNovoEmail")).to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

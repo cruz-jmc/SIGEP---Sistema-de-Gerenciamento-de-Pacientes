@@ -1,0 +1,54 @@
+info:
+  name: 09 - Atualizar credenciais do coordenador
+  type: http
+  seq: 9
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/usuarios/coordenador/credenciais"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: "{}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          nome: "Coordenação Atualizada",
+          email: bru.getEnvVar("coordenadorNovoEmail"),
+          senhaAtual: bru.getEnvVar("coordenadorSenha"),
+          novaSenha: bru.getEnvVar("coordenadorNovaSenha")
+        });
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 200) {
+          bru.deleteVar("csrfToken");
+        }
+    - type: tests
+      code: |-
+        test("HTTP 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+        test("Retorna o coordenador ativo sem credenciais secretas", function () {
+          const dados = res.getBody();
+          expect(dados.email === bru.getEnvVar("coordenadorNovoEmail")).to.be.true;
+          expect(dados.perfil).to.equal("COORDENADOR");
+          expect(dados.ativo).to.be.true;
+          expect(["senha", "senhaHash", "senhaAtual", "novaSenha"].some((campo) => Object.hasOwn(dados, campo))).to.be.false;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

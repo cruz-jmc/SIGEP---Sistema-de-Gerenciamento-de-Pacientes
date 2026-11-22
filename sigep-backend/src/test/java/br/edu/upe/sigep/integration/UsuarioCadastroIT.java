@@ -1,32 +1,28 @@
 package br.edu.upe.sigep.integration;
 
+import br.edu.upe.sigep.dto.request.CoordenadorCredenciaisRequestDTO;
+import br.edu.upe.sigep.dto.request.UsuarioAtualizacaoRequestDTO;
 import br.edu.upe.sigep.dto.request.UsuarioCadastroRequestDTO;
 import br.edu.upe.sigep.entity.Usuario;
-import br.edu.upe.sigep.repository.ConviteAtivacaoRepository;
-import br.edu.upe.sigep.service.CadastroFuncionarioResultado;
-import br.edu.upe.sigep.service.TokenService;
+import br.edu.upe.sigep.exception.EmailJaCadastradoException;
 import br.edu.upe.sigep.service.UsuarioService;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.util.Objects;
-
+import static br.edu.upe.sigep.enums.PerfilUsuario.COORDENADOR;
 import static br.edu.upe.sigep.enums.PerfilUsuario.FUNCIONARIO;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,112 +33,147 @@ class UsuarioCadastroIT extends IntegracaoUsuarios {
 
     private static final String EMAIL = "funcionario@sigep.example";
     private static final UsuarioCadastroRequestDTO DADOS =
-            new UsuarioCadastroRequestDTO(" Funcionário Teste ", " FUNCIONARIO@SIGEP.EXAMPLE ");
+            new UsuarioCadastroRequestDTO(" Funcionário Teste ", " FUNCIONARIO@SIGEP.EXAMPLE ", SENHA);
 
     @Autowired
-    private UsuarioService usuarioService;
-
-    @Autowired
-    private ConviteAtivacaoRepository convites;
-
-    @Autowired
-    private TokenService tokenService;
+    private UsuarioService service;
 
     @Autowired
     private MockMvc mvc;
 
     @Test
-    void devePersistirFuncionarioEConviteEEnviarEmailAposCommit() {
+    void persisteCadastroEPermiteLoginAteDesativarMantendoReferencias() throws Exception {
         Usuario coordenador = criarCoordenador();
-
-        var resultado = Objects.requireNonNull(transacoes.execute(status -> {
-            CadastroFuncionarioResultado cadastro = usuarioService.cadastrarFuncionario(DADOS, coordenador);
-            verifyNoInteractions(mailSender);
-            return cadastro;
-        }));
-
+        var cadastro = service.cadastrarFuncionario(DADOS, coordenador.getId());
+        Long id = cadastro.id();
         transacoes.executeWithoutResult(status -> {
-            Usuario salvo = usuarios.findById(resultado.usuario().id()).orElseThrow();
+            Usuario salvo = usuarios.findById(id).orElseThrow();
             assertEquals("Funcionário Teste", salvo.getNome());
             assertEquals(EMAIL, salvo.getEmail());
             assertEquals(FUNCIONARIO, salvo.getPerfil());
-            assertFalse(salvo.isAtivo());
-            assertTrue(salvo.isPrimeiroAcesso());
-            assertNull(salvo.getSenhaHash());
+            assertTrue(salvo.isAtivo());
+            assertTrue(encoder.matches(SENHA, salvo.getSenhaHash()));
             assertEquals(coordenador.getId(), salvo.getCriadoPor().getId());
-
-            var convite = convites.findByTokenHash(tokenService.gerarHash(resultado.tokenConvite())).orElseThrow();
-            assertEquals(salvo.getId(), convite.getUsuario().getId());
-            assertNotEquals(resultado.tokenConvite(), convite.getTokenHash());
-            assertEquals(convite.getCriadoEm().plusHours(24), convite.getExpiraEm());
-            assertNull(convite.getUtilizadoEm());
+            jdbc.update("""
+                    insert into auditoria(usuario_id, tabela_nome, registro_id, acao, criado_em)
+                    values (?, 'usuario', ?, 'TESTE_CRUD_USUARIO', now())
+                    """, id, id);
         });
 
-        var mensagem = ArgumentCaptor.forClass(SimpleMailMessage.class);
-        verify(mailSender).send(mensagem.capture());
-        assertArrayEquals(new String[]{EMAIL}, mensagem.getValue().getTo());
-        assertTrue(Objects.requireNonNull(mensagem.getValue().getText()).lines()
-                .anyMatch(resultado.tokenConvite()::equals));
-    }
+        var sessao = entrar(EMAIL, SENHA, "/");
+        mvc.perform(get("/api/auth/me").session(sessao)).andExpect(status().isOk());
 
-    @Test
-    void deveReverterCadastroEConviteSemEnviarEmailQuandoTransacaoFalha() {
-        Usuario coordenador = criarCoordenador();
-        IllegalStateException falha = new IllegalStateException("Falha deliberada da transação de teste");
-
-        assertSame(falha, assertThrows(IllegalStateException.class, () ->
-                transacoes.executeWithoutResult(status -> {
-                    usuarioService.cadastrarFuncionario(DADOS, coordenador);
-                    assertEquals(2L, usuarios.count());
-                    assertEquals(1L, convites.count());
-                    verifyNoInteractions(mailSender);
-                    throw falha;
-                })));
-
-        transacoes.executeWithoutResult(status -> {
-            assertTrue(usuarios.findByEmail(EMAIL).isEmpty());
-            assertTrue(usuarios.existsById(coordenador.getId()));
-            assertEquals(0L, convites.count());
-        });
-        verifyNoInteractions(mailSender);
-    }
-
-    @Test
-    void deveResponder201EManterCadastroQuandoEnvioPosCommitFalha() throws Exception {
-        Usuario coordenador = criarCoordenador();
-        doThrow(new MailSendException("Falha SMTP simulada"))
-                .when(mailSender).send(any(SimpleMailMessage.class));
-
-        var respostaCsrf = mvc.perform(get("/api/auth/csrf"))
+        service.atualizarFuncionario(id, new UsuarioAtualizacaoRequestDTO("Outro nome", EMAIL));
+        var sessaoCoordenador = entrar(coordenador.getEmail(), SENHA, "/");
+        assertNotEquals(sessao.getId(), sessaoCoordenador.getId());
+        mvc.perform(delete("/api/usuarios/{id}", id).session(sessaoCoordenador).with(csrf()))
+                .andExpect(status().isNoContent());
+        mvc.perform(get("/api/usuarios/{id}", id).session(sessaoCoordenador))
                 .andExpect(status().isOk())
-                .andReturn().getResponse();
-        var csrf = JsonPath.parse(respostaCsrf.getContentAsString());
-        var autenticacao = UsernamePasswordAuthenticationToken.authenticated(
-                coordenador.getEmail(), null, AuthorityUtils.createAuthorityList("ROLE_COORDENADOR")
-        );
-        var sessao = new MockHttpSession();
-        sessao.setAttribute(SPRING_SECURITY_CONTEXT_KEY, new SecurityContextImpl(autenticacao));
+                .andExpect(jsonPath("$.ativo").value(false));
+        assertFalse(sessao.isInvalid());
+        assertFalse(service.buscarPorId(id).ativo());
+        assertEquals("Outro nome", service.buscarPorId(id).nome());
+        assertEquals(coordenador.getId(), service.buscarPorId(id).criadoPorId());
+        assertEquals(id, jdbc.queryForObject(
+                "select usuario_id from auditoria where acao = 'TESTE_CRUD_USUARIO'", Long.class));
 
-        mvc.perform(post("/api/usuarios").session(sessao)
-                        .cookie(Objects.requireNonNull(respostaCsrf.getCookie("XSRF-TOKEN")))
-                        .header(csrf.read("$.headerName", String.class), csrf.read("$.token", String.class))
+        mvc.perform(get("/api/auth/me").session(sessao)).andExpect(redirectedUrl("/login"));
+        assertTrue(sessao.isInvalid());
+        entrar(EMAIL, SENHA, "/login?error");
+    }
+
+    @Test
+    void reverteCadastroAposFalhaNaTransacao() {
+        Long coordenadorId = criarCoordenador().getId();
+        assertThrows(IllegalStateException.class, () -> transacoes.executeWithoutResult(status -> {
+            service.cadastrarFuncionario(DADOS, coordenadorId);
+            assertTrue(usuarios.findByEmail(EMAIL).isPresent());
+            throw new IllegalStateException("Falha deliberada.");
+        }));
+
+        assertTrue(usuarios.findByEmail(EMAIL).isEmpty());
+        assertTrue(usuarios.existsById(coordenadorId));
+    }
+
+    @Test
+    void protegeUnicidadeDeEmailECoordenadorNoBanco() {
+        Long coordenadorId = criarCoordenador().getId();
+        service.cadastrarFuncionario(DADOS, coordenadorId);
+        assertThrows(EmailJaCadastradoException.class, () -> service.cadastrarFuncionario(DADOS, coordenadorId));
+        assertThrows(DataIntegrityViolationException.class, () -> inserirUsuario("FUNCIONARIO@SIGEP.EXAMPLE", "FUNCIONARIO"));
+        assertThrows(DataIntegrityViolationException.class, () -> inserirUsuario("outro@sigep.example", "COORDENADOR"));
+        assertEquals(2, usuarios.count());
+    }
+
+    @Test
+    void atualizaCoordenadorSemAlterarChavesERevogaSessoesMesmoComEmailIgual() throws Exception {
+        Usuario coordenador = criarCoordenador();
+        long id = coordenador.getId();
+        var criadoEm = service.buscarPorId(id).criadoEm();
+        var funcionario = service.cadastrarFuncionario(DADOS, id);
+        var sessao = entrar(coordenador.getEmail(), SENHA, "/");
+        String novaSenha = "nova-senha-ficticia";
+
+        var sessaoDaTroca = entrar(coordenador.getEmail(), SENHA, "/");
+        assertNotEquals(sessao.getId(), sessaoDaTroca.getId());
+        mvc.perform(get("/api/auth/me").session(sessao)).andExpect(status().isOk());
+
+        mvc.perform(put("/api/usuarios/coordenador/credenciais").session(sessaoDaTroca).with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content("""
-                                {"nome":"Funcionário Teste","email":"funcionario@sigep.example"}
-                                """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value(EMAIL))
-                .andExpect(jsonPath("$.ativo").value(false));
+                                {"nome":"Coordenação atualizada","email":"%s","senhaAtual":"%s","novaSenha":"%s"}
+                                """.formatted(coordenador.getEmail(), SENHA, novaSenha)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.senhaAtual").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$.novaSenha").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$.senhaHash").doesNotHaveJsonPath());
+        assertTrue(sessaoDaTroca.isInvalid());
+        assertFalse(sessao.isInvalid());
 
-        verify(mailSender).send(any(SimpleMailMessage.class));
-        transacoes.executeWithoutResult(status -> {
-            Usuario salvo = usuarios.findByEmail(EMAIL).orElseThrow();
-            var convitesSalvos = convites.findAll();
-            assertFalse(salvo.isAtivo());
-            assertNull(salvo.getSenhaHash());
-            assertEquals(1, convitesSalvos.size());
-            assertEquals(salvo.getId(), convitesSalvos.getFirst().getUsuario().getId());
-            assertNull(convitesSalvos.getFirst().getUtilizadoEm());
-        });
+        var atualizado = service.buscarPorId(id);
+        assertEquals(id, atualizado.id());
+        assertEquals(COORDENADOR, atualizado.perfil());
+        assertTrue(atualizado.ativo());
+        assertEquals(criadoEm, atualizado.criadoEm());
+        assertEquals(id, service.buscarPorId(funcionario.id()).criadoPorId());
+
+        mvc.perform(get("/api/auth/me").session(sessao)).andExpect(redirectedUrl("/login"));
+        assertTrue(sessao.isInvalid());
+        entrar(coordenador.getEmail(), SENHA, "/login?error");
+        var novaSessao = entrar(coordenador.getEmail(), novaSenha, "/");
+        mvc.perform(get("/api/auth/me").session(novaSessao)).andExpect(status().isOk());
+
+        var outroEmail = "nova-coordenacao@sigep.example";
+        service.atualizarCredenciais(id, new CoordenadorCredenciaisRequestDTO(
+                atualizado.nome(), outroEmail, novaSenha, SENHA));
+        assertTrue(usuarios.findByEmail(coordenador.getEmail()).isEmpty());
+        assertEquals(id, usuarios.findByEmail(outroEmail).orElseThrow().getId());
+        assertEquals(id, service.buscarPorId(funcionario.id()).criadoPorId());
+    }
+
+    private void inserirUsuario(String email, String perfil) {
+        jdbc.update("""
+                insert into usuario(nome, email, senha_hash, perfil, ativo, criado_em)
+                values ('Teste', ?, ?, ?, true, now())
+                """, email, encoder.encode(SENHA), perfil);
+    }
+
+    private MockHttpSession entrar(String email, String senha, String destino) throws Exception {
+        return (MockHttpSession) mvc.perform(post("/api/auth/login").with(csrf())
+                        .contentType(APPLICATION_FORM_URLENCODED)
+                        .param("email", email).param("password", senha))
+                .andExpect(status().isFound()).andExpect(redirectedUrl(destino))
+                .andReturn().getRequest().getSession(false);
+    }
+
+    private RequestPostProcessor csrf() throws Exception {
+        var resposta = mvc.perform(get("/api/auth/csrf")).andExpect(status().isOk()).andReturn().getResponse();
+        String token = JsonPath.read(resposta.getContentAsString(), "$.token");
+        return request -> {
+            request.setCookies(resposta.getCookie("XSRF-TOKEN"));
+            request.addHeader("X-XSRF-TOKEN", token);
+            return request;
+        };
     }
 }

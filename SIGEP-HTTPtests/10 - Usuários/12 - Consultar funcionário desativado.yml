@@ -1,0 +1,35 @@
+info:
+  name: 12 - Consultar funcionário desativado
+  type: http
+  seq: 12
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/usuarios/{{funcionarioId}}"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Retorna o funcionário desativado", function () {
+          const dados = res.getBody();
+          expect(dados.id).to.equal(Number(bru.getVar("funcionarioId")));
+          expect(dados.email === (bru.getVar("funcionarioEmailAtual") || bru.getEnvVar("funcionarioEmail"))).to.be.true;
+          expect(dados.perfil).to.equal("FUNCIONARIO");
+          expect(dados.ativo).to.equal(false);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

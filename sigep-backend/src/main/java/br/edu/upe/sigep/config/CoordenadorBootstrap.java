@@ -3,6 +3,7 @@ package br.edu.upe.sigep.config;
 import br.edu.upe.sigep.entity.Usuario;
 import br.edu.upe.sigep.enums.PerfilUsuario;
 import br.edu.upe.sigep.repository.UsuarioRepository;
+import br.edu.upe.sigep.validation.PoliticaSenha;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -42,11 +43,7 @@ public class CoordenadorBootstrap {
                 );
             }
 
-            int tamanhoEmBytes = senha.getBytes(
-                    java.nio.charset.StandardCharsets.UTF_8
-            ).length;
-
-            if (senha.length() < 12 || tamanhoEmBytes > 72) {
+            if (!PoliticaSenha.valida(senha)) {
                 throw new IllegalStateException(
                         "A senha administrativa deve ter " +
                                 "pelo menos 12 caracteres e " +
@@ -67,7 +64,6 @@ public class CoordenadorBootstrap {
                     PerfilUsuario.COORDENADOR
             );
             coordenador.setAtivo(true);
-            coordenador.setPrimeiroAcesso(false);
             coordenador.setCriadoPor(null);
 
             usuarioRepository.save(coordenador);

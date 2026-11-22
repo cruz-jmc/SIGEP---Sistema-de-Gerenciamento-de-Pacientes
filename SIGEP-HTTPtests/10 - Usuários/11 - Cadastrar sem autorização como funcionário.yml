@@ -15,15 +15,18 @@ http:
       value: application/json
   body:
     type: json
-    data: |-
-      {
-        "nome": "Funcionário Demonstração",
-        "email": "{{funcionarioEmail}}"
-      }
+    data: "{}"
   auth: none
 
 runtime:
   scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          nome: "Funcionário Demonstração",
+          email: bru.getEnvVar("funcionarioEmail"),
+          senha: bru.getEnvVar("funcionarioSenha")
+        });
     - type: tests
       code: |-
         test("HTTP 403", function () {

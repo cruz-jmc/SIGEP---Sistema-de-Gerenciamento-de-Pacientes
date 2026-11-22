@@ -45,18 +45,6 @@ public class GlobalExceptionHandler {
                 .body(erros);
     }
 
-    @ExceptionHandler(ConviteInvalidoException.class)
-    public ResponseEntity<Map<String, String>> handleConviteInvalido(
-            ConviteInvalidoException ex) {
-
-        Map<String, String> erro = new HashMap<>();
-        erro.put("erro", ex.getMessage());
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(erro);
-    }
-
     @ExceptionHandler(EmailJaCadastradoException.class)
     public ResponseEntity<Map<String, String>> handleEmailDuplicado(
             EmailJaCadastradoException ex) {

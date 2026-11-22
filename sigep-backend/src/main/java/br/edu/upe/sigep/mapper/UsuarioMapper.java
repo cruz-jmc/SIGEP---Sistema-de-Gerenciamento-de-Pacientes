@@ -16,25 +16,12 @@ public class UsuarioMapper {
         Long criadoPorId = usuario.getCriadoPor() != null
                 ? usuario.getCriadoPor().getId()
                 : null;
-        /*//
-        isso de cima é o mesmo que fazer:
-
-        Long criadoPorId;
-
-        if (usuario.getCriadoPor() != null) {
-            criadoPorId = usuario.getCriadoPor().getId();
-        } else {
-            criadoPorId = null;
-        }
-        /*///
-
         return new UsuarioResponseDTO(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getPerfil(),
                 usuario.isAtivo(),
-                usuario.isPrimeiroAcesso(),
                 criadoPorId,
                 usuario.getCriadoEm()
         );

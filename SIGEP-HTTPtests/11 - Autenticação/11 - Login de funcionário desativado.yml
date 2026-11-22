@@ -1,0 +1,43 @@
+info:
+  name: 11 - Login de funcionário desativado
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auth/login"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/x-www-form-urlencoded
+  body:
+    type: form-urlencoded
+    data:
+      - name: email
+        value: "{{funcionarioNovoEmail}}"
+      - name: password
+        value: "{{funcionarioSenha}}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 302", function () {
+          expect(res.getStatus()).to.equal(302);
+        });
+
+        test("Redireciona para /login?error", function () {
+          const destino = String(res.getHeader("location") || "").replace(/^https?:\/\/[^/]+/i, "");
+          expect(destino === "/login?error").to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

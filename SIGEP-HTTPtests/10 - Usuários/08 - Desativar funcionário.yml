@@ -1,31 +1,20 @@
 info:
-  name: 07 - Ativar com convite válido
+  name: 08 - Desativar funcionário
   type: http
-  seq: 7
+  seq: 8
 
 http:
-  method: POST
-  url: "{{baseUrl}}/api/ativacao"
+  method: DELETE
+  url: "{{baseUrl}}/api/usuarios/{{funcionarioId}}"
   headers:
     - name: Accept
       value: application/json
     - name: X-XSRF-TOKEN
       value: "{{csrfToken}}"
-    - name: Content-Type
-      value: application/json
-  body:
-    type: json
-    data: "{}"
   auth: none
 
 runtime:
   scripts:
-    - type: before-request
-      code: |-
-        req.setBody({
-          token: bru.getEnvVar("ativacaoToken"),
-          senha: bru.getEnvVar("funcionarioSenha")
-        });
     - type: tests
       code: |-
         test("HTTP 204", function () {

@@ -22,7 +22,7 @@ runtime:
         test("A lista inclui o funcionário cadastrado", function () {
           const dados = res.getBody();
           const id = Number(bru.getVar("funcionarioId"));
-          const email = bru.getEnvVar("funcionarioEmail");
+          const email = bru.getVar("funcionarioEmailAtual") || bru.getEnvVar("funcionarioEmail");
           expect(Array.isArray(dados)).to.be.true;
           expect(dados.some((usuario) => usuario.id === id && usuario.email === email
             && usuario.perfil === "FUNCIONARIO")).to.be.true;

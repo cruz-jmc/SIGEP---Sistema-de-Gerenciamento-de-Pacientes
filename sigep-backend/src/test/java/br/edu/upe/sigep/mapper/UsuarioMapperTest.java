@@ -21,12 +21,12 @@ class UsuarioMapperTest {
         criador.setId(3L);
         Usuario usuario = new Usuario(
                 8L, "Pessoa Teste", "pessoa@sigep.example", null,
-                PerfilUsuario.FUNCIONARIO, false, true, criador, criadoEm
+                PerfilUsuario.FUNCIONARIO, false, true, 0L, criador, criadoEm
         );
 
         assertEquals(new UsuarioResponseDTO(
                 8L, "Pessoa Teste", "pessoa@sigep.example", PerfilUsuario.FUNCIONARIO,
-                false, true, 3L, criadoEm
+                false, 3L, criadoEm
         ), mapper.toResponseDTO(usuario));
     }
 
@@ -35,12 +35,12 @@ class UsuarioMapperTest {
         LocalDateTime criadoEm = LocalDateTime.of(2026, 1, 15, 10, 0);
         Usuario usuario = new Usuario(
                 3L, "Coordenacao", "coordenacao@sigep.example", "hash-ficticio",
-                PerfilUsuario.COORDENADOR, true, false, null, criadoEm
+                PerfilUsuario.COORDENADOR, true, false, 0L, null, criadoEm
         );
 
         assertEquals(new UsuarioResponseDTO(
                 3L, "Coordenacao", "coordenacao@sigep.example", PerfilUsuario.COORDENADOR,
-                true, false, null, criadoEm
+                true, null, criadoEm
         ), mapper.toResponseDTO(usuario));
     }
 

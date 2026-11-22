@@ -8,9 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @ActiveProfiles("integration")
@@ -26,13 +25,15 @@ public abstract class IntegracaoUsuarios {
     @Autowired
     protected TransactionTemplate transacoes;
 
-    @MockitoBean
-    protected JavaMailSender mailSender;
+    protected static final String SENHA = "senha-ficticia";
+
+    @Autowired
+    protected PasswordEncoder encoder;
 
     @BeforeEach
     void prepararBanco() {
         transacoes.executeWithoutResult(status -> {
-            jdbc.update("delete from convite_ativacao");
+            jdbc.update("delete from auditoria where acao = 'TESTE_CRUD_USUARIO'");
             jdbc.update("delete from usuario where perfil = 'FUNCIONARIO'");
             jdbc.update("delete from usuario where perfil = 'COORDENADOR'");
         });
@@ -44,7 +45,7 @@ public abstract class IntegracaoUsuarios {
         coordenador.setEmail("coordenacao@sigep.example");
         coordenador.setPerfil(PerfilUsuario.COORDENADOR);
         coordenador.setAtivo(true);
-        coordenador.setPrimeiroAcesso(false);
+        coordenador.setSenhaHash(encoder.encode(SENHA));
         return usuarios.save(coordenador);
     }
 }

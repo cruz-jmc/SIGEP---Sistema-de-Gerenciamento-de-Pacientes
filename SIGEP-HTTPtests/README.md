@@ -2,58 +2,49 @@
 
 ## Preparação local
 
-1. Na raiz do repositório, use o `.env` local baseado no `.env.example`. Configure `DB_URL` para `jdbc:postgresql://db:5432/sigep`, `DB_USERNAME` para o usuário do serviço `db` e use a mesma senha em `DB_PASSWORD` e `LOCAL_DB_PASSWORD`. Para inicializar o primeiro coordenador, configure também `SIGEP_ADMIN_NOME`, `SIGEP_ADMIN_EMAIL` e `SIGEP_ADMIN_SENHA`. Se já existe um coordenador, use as credenciais dessa conta. O bootstrap não redefine suas credenciais.
-2. Na raiz, execute `docker compose up -d --build backend`. O Compose inicia também `db` e `mailpit`. Aguarde a inicialização do backend com o perfil `dev`. A API usa `http://localhost:8080` e o Mailpit usa `http://localhost:8025`.
-3. Abra a pasta `SIGEP-HTTPtests` como coleção no Bruno e selecione o ambiente **Local**. Use o editor do ambiente para preencher os valores dos campos marcados como secretos e salve pelo Bruno. O aplicativo guarda esses valores localmente. Mantenha a marcação de segredo e o `.env` fora do versionamento.
-4. Nas preferências de requisições do Bruno, mantenha habilitados o envio e o armazenamento de cookies (`Send Cookies` e `Store Cookies`). Para começar anônimo, remova no gerenciador de cookies os cookies antigos do host de `baseUrl` ou faça logout com CSRF válido caso uma sessão já esteja aberta. Use o mesmo host durante todo o roteiro.
+1. Configure o `.env` local com `DB_URL=jdbc:postgresql://db:5432/sigep`, `DB_USERNAME`, `DB_PASSWORD` e `LOCAL_DB_PASSWORD` conforme o Compose. Para inicializar o coordenador, configure também `SIGEP_ADMIN_NOME`, `SIGEP_ADMIN_EMAIL` e `SIGEP_ADMIN_SENHA`. Se a conta já existir, use suas credenciais atuais.
+2. Inicie o ambiente local com `docker compose up -d --build backend`. A API usa `http://localhost:8080`.
+3. Abra `SIGEP-HTTPtests` no Bruno, selecione **Local** e preencha os campos secretos pelo editor do ambiente. Mantenha esses valores no armazenamento local do Bruno.
+4. Habilite **Send Cookies** e **Store Cookies**. Use o mesmo host em todo o roteiro e limpe os cookies antigos desse host para iniciar sem sessão. As requisições das duas pastas mantêm **Follow Redirects** desabilitado.
 
-| Variável | Como preencher |
+| Variável | Valor local |
 | --- | --- |
-| `baseUrl` | Valor já definido no ambiente **Local**. |
-| `coordenadorEmail`, `coordenadorSenha` | Credenciais locais do coordenador. Use o e-mail em minúsculas, conforme o cadastro. |
-| `funcionarioEmail` | E-mail em minúsculas, sem espaços e ainda não cadastrado. |
-| `funcionarioSenha` | Senha que será definida na ativação e reutilizada no login. Use pelo menos 12 caracteres e até 72 bytes UTF-8. |
-| `ativacaoToken` | Copie do Mailpit depois do cadastro. |
-| `funcionarioId` | Variável de execução preenchida a partir de `id` no cadastro 201. Uma nova tentativa na requisição de cadastro principal substitui ou limpa o ID anterior ao receber a resposta. |
-| `csrfToken` | Variável de execução preenchida pelo Bruno na requisição `01 - Obter CSRF`. |
+| `coordenadorEmail`, `coordenadorSenha` | Credenciais atuais do coordenador. |
+| `funcionarioEmail`, `funcionarioNovoEmail` | Dois e-mails distintos, em minúsculas e ainda disponíveis. |
+| `funcionarioSenha` | Senha inicial usada no cadastro e no login. |
+| `coordenadorNovoEmail`, `coordenadorNovaSenha` | Credenciais para a troca. Use um e-mail em minúsculas. |
+| `funcionarioId`, `funcionarioEmailAtual`, `csrfToken` | Variáveis de execução preenchidas pelos scripts da coleção. |
 
-## Demonstração manual
+As senhas novas exigem pelo menos 12 caracteres e até 72 bytes UTF-8.
 
-Envie as requisições uma por uma e confira a aba **Tests** após cada resposta. Os números recomeçam em cada pasta. Todos os arquivos destas duas pastas mantêm **Follow Redirects** desabilitado para conferir a resposta original.
+## Roteiro manual
 
-| Passo | Pasta e requisição | Resultado esperado |
+| Passo | Requisições | Resultado esperado |
 | --- | --- | --- |
-| 1 | Autenticação · 02 Verificar acesso sem login | 302 para `/login`. |
-| 2 | Autenticação · 01 Obter CSRF | 200 com `headerName` e `token`. |
-| 3 | Autenticação · 03 Login do coordenador | 302 para `/` ou para a consulta de sessão salva pelo Spring Security. |
-| 4 | Autenticação · 04 Confirmar sessão do coordenador | 200, e-mail do coordenador, `autenticado: true` e `ROLE_COORDENADOR`. |
-| 5 | Autenticação · 01 Obter CSRF | 200, CSRF atualizado para a sessão do coordenador. |
-| 6 | Usuários · 01 Cadastrar funcionário | 201, ID capturado, perfil `FUNCIONARIO`, `ativo: false` e `primeiroAcesso: true`. |
-| 7 | Usuários · 02 Buscar funcionário por ID e 03 Listar usuários | 200 em ambas, com o funcionário cadastrado. |
-| 8 | Usuários · 04 Cadastrar com e-mail duplicado, 05 Cadastrar com dados inválidos e 06 Buscar usuário inexistente | 409 com `erro`, 400 com erros em `nome` e `email`, e 400 com `erro` para o ID de teste `99999`. Se esse ID existir na sua base local, escolha outro ID ausente e ajuste o teste correspondente na requisição. |
-| 9 | Autenticação · 07 Logout | 302 para `/login?logout`. |
-| 10 | Mailpit | Abra `http://localhost:8025`. Na mensagem mais recente **SIGEP - Ativação de conta** destinada ao e-mail cadastrado, copie o token do corpo e salve-o no campo secreto `ativacaoToken` do ambiente **Local**. O convite expira em 24 horas. |
-| 11 | Autenticação · 01 Obter CSRF, depois Usuários · 07 Ativar com convite válido | 200 para renovar o CSRF já sem sessão e 204 sem corpo para ativar a conta. |
-| 12 | Autenticação · 05 Login do funcionário | 302 para `/` ou para a consulta de sessão salva. |
-| 13 | Autenticação · 06 Confirmar sessão do funcionário | 200, e-mail do funcionário, `autenticado: true` e `ROLE_FUNCIONARIO`. |
-| 14 | Usuários · 10 Acessar usuários como funcionário, Autenticação · 01 Obter CSRF e Usuários · 11 Cadastrar sem autorização como funcionário | 403 na consulta, 200 na renovação e 403 no cadastro com CSRF válido. O cadastro usa o mesmo e-mail da demonstração. |
-| 15 | Autenticação · 07 Logout | 302 para `/login?logout`. |
-| 16 | Autenticação · 08 Verificar acesso após logout | 302 para `/login`. |
+| 1 | Autenticação · 02 Verificar acesso sem login, 01 Obter CSRF, 03 Login do coordenador e 04 Confirmar sessão do coordenador | Acesso anônimo redireciona para `/login`. Login retorna 302 e a sessão retorna 200 com `ROLE_COORDENADOR`. |
+| 2 | Autenticação · 01 Obter CSRF, depois Usuários · 01 Cadastrar funcionário | 201 com ID, `FUNCIONARIO`, `ativo: true` e ID do criador. |
+| 3 | Usuários · 02 Buscar funcionário por ID, 03 Listar usuários, 04 Cadastrar com e-mail duplicado, 05 Cadastrar com dados inválidos e 06 Buscar usuário inexistente | 200 nas consultas, 409 no cadastro duplicado, 400 com erros de validação e 400 para ID inexistente. Ajuste o ID de teste `99999` se ele existir na base local. |
+| 4 | Autenticação · 07 Logout, 08 Verificar acesso após logout, 01 Obter CSRF, 05 Login do funcionário e 06 Confirmar sessão do funcionário | Logout redireciona para `/login?logout`. O funcionário autentica com a senha inicial e a consulta retorna 200 com `ROLE_FUNCIONARIO`. |
+| 5 | Autenticação · 01 Obter CSRF, depois Usuários · 10 Acessar usuários como funcionário e 11 Cadastrar sem autorização como funcionário | 403 em ambas as requisições de usuários, com CSRF válido no cadastro. |
+| 6 | Autenticação · 07 Logout, 01 Obter CSRF, 03 Login do coordenador, 01 Obter CSRF, depois Usuários · 07 Atualizar funcionário, 08 Desativar funcionário e 12 Consultar funcionário desativado | 200 com nome e e-mail atualizados, 204 na desativação e 200 com `ativo: false` na consulta. |
+| 7 | Usuários · 09 Atualizar credenciais do coordenador, depois Autenticação · 08 Verificar acesso após logout | 200 na troca e 302 para `/login` na consulta seguinte. |
+| 8 | Autenticação · 01 Obter CSRF e 11 Login de funcionário desativado | 302 para `/login?error`, mesmo usando a senha correta. |
+| 9 | Atualize os segredos locais `coordenadorEmail` e `coordenadorSenha`. Execute Autenticação · 01 Obter CSRF, 03 Login do coordenador e 04 Confirmar sessão do coordenador | 302 no novo login e 200 com o e-mail atualizado. |
 
-### Negativos opcionais
-
-- Logo após o 204 da ativação, execute **Usuários · 08 Reutilizar convite** com o mesmo token e **Usuários · 09 Ativar com token inválido**. Ambos devem retornar 400 com `erro: Convite inválido ou expirado.` e permitem prosseguir para o login do funcionário. Mantenha a senha válida no ambiente. O script monta o corpo JSON das três requisições de ativação com os valores locais, inclusive se a senha contiver aspas ou barras invertidas.
-- Depois do passo 16, ainda sem sessão, execute **Autenticação · 01 Obter CSRF** e **09 Login com senha incorreta**. Espere 302 para `/login?error`. O formulário usa uma senha deliberadamente errada de teste. Caso ela coincida com sua senha local, troque o valor de teste na requisição.
-- Ainda sem sessão, execute **Autenticação · 10 Login sem CSRF**. Espere 403. A requisição omite o cabeçalho CSRF e o campo de formulário correspondente, mesmo que o cookie ainda esteja no jar. Confira o estado anônimo com **08 Verificar acesso após logout**.
+Em estado anônimo, **09 Login com senha incorreta** espera 302 para `/login?error` após obter CSRF. **10 Login sem CSRF** espera 403, inclusive com o cookie no jar.
 
 ## CSRF e cookies
 
-O script de **01 Obter CSRF** limpa o valor anterior e, após validar o 200 e os campos da resposta, guarda o token do JSON em `csrfToken` com `bru.setVar`. Os POSTs que exigem CSRF enviam `X-XSRF-TOKEN: {{csrfToken}}`. O Bruno gerencia o cookie `XSRF-TOKEN` que acompanha esse cabeçalho e o `JSESSIONID` da sessão. Use o token do JSON para o cabeçalho. O Spring Security mascara esse token e seu valor pode diferir do cookie.
+**01 Obter CSRF** guarda o campo `token` do JSON em `csrfToken`. O Spring Security mascara esse valor. Envie-o em `X-XSRF-TOKEN` junto com o cookie `XSRF-TOKEN` da mesma emissão, usando o jar do Bruno. O valor bruto do cookie no cabeçalho, o cabeçalho ausente e o pareamento de token e cookie de emissões diferentes retornam 403.
 
-Os scripts de resposta dos logins principais e do logout removem a variável CSRF ao receber 302. Reexecute **01 Obter CSRF** antes do primeiro POST após cada troca de sessão. Consultas GET podem ser feitas antes da renovação. Se você limpar cookies, reiniciar o cliente ou perder a sessão, recomece a partir do estado apropriado e obtenha um novo CSRF.
+O cookie `JSESSIONID` mantém a autenticação entre requisições. Login bem-sucedido, logout e troca de credenciais limpam o cookie CSRF. Execute **01 Obter CSRF** antes da primeira mutação depois de cada uma dessas operações. Consultas GET podem ser feitas antes da renovação.
 
-Na primeira execução manual, confira se o jar armazena e envia os cookies de `baseUrl` e se a sessão é preservada entre o 302 do login e o GET de confirmação. Um 403 inesperado em um POST pode indicar que o cabeçalho e o cookie CSRF não pertencem à mesma sessão. Renove o CSRF e confira o papel retornado pela consulta de sessão. Evite compartilhar capturas ou traces que exibam credenciais, tokens ou cookies.
+Se uma mutação retornar 403, confira primeiro a sessão em `/api/auth/me`. Se o perfil estiver correto, obtenha outro CSRF e confira se o Bruno envia o cookie correspondente no mesmo host. A troca de credenciais revoga as outras sessões do coordenador no próximo acesso. A desativação tem o mesmo efeito nas sessões do funcionário. Uma alteração de e-mail também exige novo login para a sessão afetada.
 
-## Repetição com outro funcionário
+## Invalidar sessões com cookies independentes
 
-Encerre a sessão atual, confirme o estado anônimo e preencha um novo `funcionarioEmail` e a senha escolhida. Limpe o valor local de `ativacaoToken` e repita o roteiro desde o passo 1. Após o novo 201, use apenas o convite destinado ao novo e-mail. O cadastro duplicado funciona usando o mesmo e-mail do cadastro bem-sucedido dessa rodada.
+Use duas instâncias do Bruno com armazenamento de cookies independente, por exemplo em perfis distintos do sistema operacional. Abra a mesma coleção e selecione o ambiente **Local** nas duas instâncias. Mantenha **Send Cookies** e **Store Cookies** ligados e **Follow Redirects** desligado. Confira que cada login mantém seu próprio `JSESSIONID`. Execute **01 Obter CSRF** dentro de cada instância antes de seu login e antes das mutações após login. Cada instância deve enviar seu próprio cookie `XSRF-TOKEN` com o token obtido nela.
+
+1. **Desativação.** Na instância A, entre como coordenador e cadastre um funcionário. Na B, entre como esse funcionário e execute **06 Confirmar sessão do funcionário** para confirmar HTTP 200. Na A, obtenha CSRF e execute **08 Desativar funcionário** (204) e **12 Consultar funcionário desativado** (200 com `ativo: false`). Na B, mantenha o cookie da sessão original e execute **08 Verificar acesso após logout** como a próxima requisição. Espere 302 para `/login`. Na B, preencha `funcionarioNovoEmail` com o e-mail da conta desativada, obtenha CSRF e execute **11 Login de funcionário desativado**. Espere 302 para `/login?error`.
+2. **Troca de credenciais.** Entre como coordenador nas duas instâncias e execute **04 Confirmar sessão do coordenador** em ambas (200). Para verificar a revogação por troca de senha isoladamente, preencha `coordenadorNovoEmail` com o e-mail atual e escolha uma nova senha. Na A, obtenha CSRF e execute **09 Atualizar credenciais do coordenador** (200). Na B, mantenha o cookie original e execute **08 Verificar acesso após logout** como a próxima requisição. Espere 302 para `/login`.
+3. **Login após a troca.** Na B, obtenha CSRF e reenvie **03 Login do coordenador** com a senha anterior. Confira o status 302 e o cabeçalho `Location` terminando em `/login?error`. Os testes dessa requisição esperam sucesso, por isso o teste de destino falha nessa tentativa deliberada. Atualize os segredos locais com as novas credenciais, obtenha CSRF de novo, repita **03 Login do coordenador** e execute **04 Confirmar sessão do coordenador**. Espere 200 na confirmação.

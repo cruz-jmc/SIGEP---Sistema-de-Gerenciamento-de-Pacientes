@@ -9,7 +9,6 @@ public record UsuarioResponseDTO(
         String email,
         PerfilUsuario perfil,
         boolean ativo,
-        boolean primeiroAcesso,
         Long criadoPorId,
         LocalDateTime criadoEm
 ) {}

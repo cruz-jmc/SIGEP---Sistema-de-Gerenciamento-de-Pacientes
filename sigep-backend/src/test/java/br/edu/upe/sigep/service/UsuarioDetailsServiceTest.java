@@ -41,7 +41,7 @@ class UsuarioDetailsServiceTest {
 
     @Test
     void deveRejeitarUsuarioInexistente() {
-        when(repository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(repository.buscarPorEmailNormalizado(EMAIL)).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername(EMAIL));
     }
@@ -66,6 +66,6 @@ class UsuarioDetailsServiceTest {
         usuario.setPerfil(perfil);
         usuario.setSenhaHash(hash);
         usuario.setAtivo(ativo);
-        when(repository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(repository.buscarPorEmailNormalizado(EMAIL)).thenReturn(Optional.of(usuario));
     }
 }

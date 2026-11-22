@@ -30,10 +30,11 @@ runtime:
           expect(res.getStatus()).to.equal(400);
         });
 
-        test("Identifica erros de nome e e-mail", function () {
+        test("Identifica erros de nome, e-mail e senha", function () {
           const dados = res.getBody();
           expect(dados.nome).to.equal("O nome é obrigatório");
           expect(dados.email).to.equal("Informe um e-mail válido");
+          expect(dados.senha).to.equal("A senha inicial é obrigatória");
         });
 
 settings:

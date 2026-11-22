@@ -3,7 +3,6 @@ package br.edu.upe.sigep.service;
 import br.edu.upe.sigep.entity.Usuario;
 import br.edu.upe.sigep.repository.UsuarioRepository;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,7 +29,7 @@ public class UsuarioDetailsService implements UserDetailsService {
                 email.trim().toLowerCase(Locale.ROOT);
 
         Usuario usuario = usuarioRepository
-                .findByEmail(emailNormalizado)
+                .buscarPorEmailNormalizado(emailNormalizado)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
                                 "Credenciais inválidas."
@@ -43,12 +42,6 @@ public class UsuarioDetailsService implements UserDetailsService {
             );
         }
 
-        return User.withUsername(usuario.getEmail())
-                .password(usuario.getSenhaHash())
-                .authorities(
-                        "ROLE_" + usuario.getPerfil().name()
-                )
-                .disabled(!usuario.isAtivo())
-                .build();
+        return new UsuarioAutenticado(usuario);
     }
 }
