@@ -26,3 +26,17 @@ variables:
     value:
       type: number
       data: "1"
+  - secret: true
+    name: coordenadorEmail
+  - secret: true
+    name: coordenadorSenha
+  - secret: true
+    name: funcionarioEmail
+  - secret: true
+    name: funcionarioSenha
+  - secret: true
+    name: funcionarioNovoEmail
+  - secret: true
+    name: coordenadorNovoEmail
+  - secret: true
+    name: coordenadorNovaSenha

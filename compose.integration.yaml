@@ -1,0 +1,19 @@
+name: sigep-it
+
+services:
+  postgres:
+    image: postgres:17
+    command: ["postgres", "-c", "cluster_name=sigep-integration"]
+    environment:
+      POSTGRES_DB: sigep_integration
+      POSTGRES_USER: sigep_integration
+      POSTGRES_PASSWORD: ${SIGEP_IT_DB_PASSWORD:?Defina SIGEP_IT_DB_PASSWORD para o banco descartável}
+    ports:
+      - "127.0.0.1:55433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U sigep_integration -d sigep_integration"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

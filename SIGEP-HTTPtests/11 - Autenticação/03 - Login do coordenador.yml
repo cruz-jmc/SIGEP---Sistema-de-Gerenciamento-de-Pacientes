@@ -1,0 +1,48 @@
+info:
+  name: 03 - Login do coordenador
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/auth/login"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/x-www-form-urlencoded
+  body:
+    type: form-urlencoded
+    data:
+      - name: email
+        value: "{{coordenadorEmail}}"
+      - name: password
+        value: "{{coordenadorSenha}}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 302) {
+          bru.deleteVar("csrfToken");
+        }
+    - type: tests
+      code: |-
+        test("HTTP 302", function () {
+          expect(res.getStatus()).to.equal(302);
+        });
+
+        test("Redireciona após autenticar", function () {
+          const destino = String(res.getHeader("location") || "").replace(/^https?:\/\/[^/]+/i, "");
+          expect(destino === "/" || /^\/api\/auth\/me(?:\?.*)?$/.test(destino)).to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

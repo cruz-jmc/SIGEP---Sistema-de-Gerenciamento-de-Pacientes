@@ -1,0 +1,41 @@
+info:
+  name: 11 - Cadastrar sem autorização como funcionário
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/usuarios"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: "{}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          nome: "Funcionário Demonstração",
+          email: bru.getEnvVar("funcionarioEmail"),
+          senha: bru.getEnvVar("funcionarioSenha")
+        });
+    - type: tests
+      code: |-
+        test("HTTP 403", function () {
+          expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,61 @@
+info:
+  name: 01 - Cadastrar funcionário
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/usuarios"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: "{}"
+  auth: none
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        req.setBody({
+          nome: "Funcionário Demonstração",
+          email: bru.getEnvVar("funcionarioEmail"),
+          senha: bru.getEnvVar("funcionarioSenha")
+        });
+    - type: after-response
+      code: |-
+        bru.deleteVar("funcionarioId");
+        bru.deleteVar("funcionarioEmailAtual");
+
+        const dados = res.getBody();
+        if (res.getStatus() === 201 && Number.isSafeInteger(dados?.id) && dados.id > 0) {
+          bru.setVar("funcionarioId", String(dados.id));
+        }
+    - type: tests
+      code: |-
+        test("HTTP 201", function () {
+          expect(res.getStatus()).to.equal(201);
+        });
+
+        test("Retorna o funcionário ativo e registra seu ID", function () {
+          const dados = res.getBody();
+          expect(Number.isSafeInteger(dados.id) && dados.id > 0).to.be.true;
+          expect(bru.getVar("funcionarioId")).to.equal(String(dados.id));
+          expect(dados.email === bru.getEnvVar("funcionarioEmail")).to.be.true;
+          expect(dados.perfil).to.equal("FUNCIONARIO");
+          expect(dados.ativo).to.be.true;
+          expect(Number.isSafeInteger(dados.criadoPorId) && dados.criadoPorId > 0).to.be.true;
+          expect(["senha", "senhaHash", "token"].some((campo) => Object.hasOwn(dados, campo))).to.be.false;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

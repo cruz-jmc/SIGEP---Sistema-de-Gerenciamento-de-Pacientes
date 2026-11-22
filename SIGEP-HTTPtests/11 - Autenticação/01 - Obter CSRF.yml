@@ -1,0 +1,42 @@
+info:
+  name: 01 - Obter CSRF
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/auth/csrf"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.deleteVar("csrfToken");
+
+        const dados = res.getBody();
+        if (res.getStatus() === 200 && dados?.headerName === "X-XSRF-TOKEN"
+            && typeof dados.token === "string" && dados.token.trim().length > 0) {
+          bru.setVar("csrfToken", dados.token);
+        }
+    - type: tests
+      code: |-
+        test("HTTP 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Retorna um token CSRF no corpo e informa o cabeçalho", function () {
+          const dados = res.getBody();
+          expect(dados.headerName).to.equal("X-XSRF-TOKEN");
+          expect(typeof dados.token === "string" && dados.token.trim().length > 0).to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

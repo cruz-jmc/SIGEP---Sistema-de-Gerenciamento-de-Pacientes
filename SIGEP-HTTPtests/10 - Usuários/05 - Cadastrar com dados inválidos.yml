@@ -1,0 +1,45 @@
+info:
+  name: 05 - Cadastrar com dados inválidos
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/usuarios"
+  headers:
+    - name: Accept
+      value: application/json
+    - name: X-XSRF-TOKEN
+      value: "{{csrfToken}}"
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nome": " ",
+        "email": "email-invalido"
+      }
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 400", function () {
+          expect(res.getStatus()).to.equal(400);
+        });
+
+        test("Identifica erros de nome, e-mail e senha", function () {
+          const dados = res.getBody();
+          expect(dados.nome).to.equal("O nome é obrigatório");
+          expect(dados.email).to.equal("Informe um e-mail válido");
+          expect(dados.senha).to.equal("A senha inicial é obrigatória");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

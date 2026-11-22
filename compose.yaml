@@ -13,6 +13,9 @@ services:
       DB_URL: ${DB_URL:?DB_URL nao definida}
       DB_USERNAME: ${DB_USERNAME:?DB_USERNAME nao definido}
       DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD nao definida}
+      SIGEP_ADMIN_NOME: ${SIGEP_ADMIN_NOME}
+      SIGEP_ADMIN_EMAIL: ${SIGEP_ADMIN_EMAIL}
+      SIGEP_ADMIN_SENHA: ${SIGEP_ADMIN_SENHA}
     depends_on:
       db:
         condition: service_healthy

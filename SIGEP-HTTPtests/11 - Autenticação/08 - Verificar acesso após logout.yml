@@ -1,0 +1,32 @@
+info:
+  name: 08 - Verificar acesso após logout
+  type: http
+  seq: 8
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/auth/me"
+  headers:
+    - name: Accept
+      value: application/json
+  auth: none
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("HTTP 302", function () {
+          expect(res.getStatus()).to.equal(302);
+        });
+
+        test("Redireciona para /login", function () {
+          const destino = String(res.getHeader("location") || "").replace(/^https?:\/\/[^/]+/i, "");
+          expect(destino === "/login").to.be.true;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

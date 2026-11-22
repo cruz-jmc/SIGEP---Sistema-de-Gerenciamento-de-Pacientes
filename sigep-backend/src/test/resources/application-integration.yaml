@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${SIGEP_IT_DB_URL}
+    username: ${SIGEP_IT_DB_USER}
+    password: ${SIGEP_IT_DB_PASSWORD}
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate

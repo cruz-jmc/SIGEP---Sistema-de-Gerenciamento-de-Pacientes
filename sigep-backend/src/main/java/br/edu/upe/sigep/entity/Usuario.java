@@ -32,11 +32,23 @@ public class Usuario {
     private PerfilUsuario perfil;
     @Column(nullable = false)
     private boolean ativo;
-    @Column(name= "primeiro_acesso", nullable = false)
-    private boolean primeiroAcesso = true;
-    @ManyToOne
+
+    // Preserva a leitura do campo legado em módulos que serializam associações com Usuario.
+    @Column(name = "primeiro_acesso", nullable = false, insertable = false, updatable = false)
+    private boolean primeiroAcesso;
+    @JsonIgnore
+    @Column(name = "revisao_credenciais", nullable = false)
+    private long revisaoCredenciais;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criado_por")
-    private Usuario criadorPor;
+    private Usuario criadoPor;
     @Column(name = "criado_em", nullable = false, updatable = false)
     private LocalDateTime criadoEm;
+
+    @PrePersist
+    public void prePersist() {
+        if (criadoEm == null) {
+            criadoEm = LocalDateTime.now();
+        }
+    }
 }
