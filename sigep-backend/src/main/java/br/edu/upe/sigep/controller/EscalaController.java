@@ -39,11 +39,19 @@ public class EscalaController {
     @GetMapping("/{escalaId}")
     public ResponseEntity<EscalaAtendimentoResponseDTO> buscarEscalaPorId(
             @PathVariable Long escalaId) {
-        try {
-            return ResponseEntity.ok(
-                    escalaService.buscarEscalaPorId(escalaId));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(escalaService.buscarEscalaPorId(escalaId));
+    }
+
+    @PutMapping("/{escalaId}")
+    public ResponseEntity<EscalaAtendimentoResponseDTO> atualizar(
+            @PathVariable Long escalaId,
+            @Valid @RequestBody EscalaAtendimentoRequestDTO dto) {
+        return ResponseEntity.ok(escalaService.atualizar(escalaId, dto));
+    }
+
+    @DeleteMapping("/{escalaId}")
+    public ResponseEntity<Void> inativar(@PathVariable Long escalaId) {
+        escalaService.inativar(escalaId);
+        return ResponseEntity.noContent().build();
     }
 }
