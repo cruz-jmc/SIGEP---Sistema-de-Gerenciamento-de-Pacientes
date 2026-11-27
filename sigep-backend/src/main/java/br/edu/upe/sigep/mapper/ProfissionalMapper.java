@@ -2,6 +2,7 @@ package br.edu.upe.sigep.mapper;
 
 import br.edu.upe.sigep.dto.request.ProfissionalRequestDTO;
 import br.edu.upe.sigep.dto.response.ProfissionalResponseDTO;
+import br.edu.upe.sigep.entity.Especialidade;
 import br.edu.upe.sigep.entity.Profissional;
 import br.edu.upe.sigep.entity.Usuario;
 
@@ -15,6 +16,12 @@ public final class ProfissionalMapper {
         entidade.setNome(dto.nome());
         entidade.setConselho(dto.conselho());
         entidade.setRegistroConselho(dto.registroConselho());
+
+        if (dto.especialidadeId() != null) {
+            Especialidade especialidade = new Especialidade();
+            especialidade.setId(dto.especialidadeId());
+            entidade.setEspecialidade(especialidade);
+        }
 
         if (dto.cadastradoPorId() != null) {
             Usuario referencia = new Usuario();
