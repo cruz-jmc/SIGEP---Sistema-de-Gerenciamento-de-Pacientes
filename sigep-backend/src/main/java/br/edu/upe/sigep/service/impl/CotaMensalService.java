@@ -146,6 +146,42 @@ public class CotaMensalService {
         cotaMensalRepository.save(cota);
     }
 
+    /**
+     * @deprecated Mantido apenas para compatibilidade com testes legados.
+     *             Utilize {@link #temCotaDisponivel(Long, Long, LocalDate)}.
+     */
+    @Deprecated
+    @Transactional(readOnly = true)
+    public boolean temCotaDisponivel(Long especialidadeId, LocalDate data) {
+        short mes = (short) data.getMonthValue();
+        short ano = (short) data.getYear();
+        validarMes(mes);
+
+        return cotaMensalRepository.consultarPorFiltros(null, especialidadeId, mes, ano)
+                .stream()
+                .anyMatch(cota -> cota.getQtdCotaLimite() > 0);
+    }
+
+    /**
+     * @deprecated Mantido apenas para compatibilidade com testes legados.
+     *             Utilize {@link #decrementarCota(Long, Long, LocalDate)}.
+     */
+    @Deprecated
+    @Transactional
+    public void decrementarCota(Long especialidadeId, LocalDate data) {
+        short mes = (short) data.getMonthValue();
+        short ano = (short) data.getYear();
+        validarMes(mes);
+
+        CotaMensal cota = cotaMensalRepository.consultarPorFiltros(null, especialidadeId, mes, ano)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Cota mensal não encontrada para esta especialidade e período."));
+
+        decrementarCota(cota.getProfissional().getId(), especialidadeId, data);
+    }
+
     private void validarMes(short mes) {
         if (mes < 1 || mes > 12) {
             throw new IllegalArgumentException("O mês de referência deve estar entre 1 e 12.");

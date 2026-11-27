@@ -51,21 +51,29 @@ public class CotaMensalController {
 
     @GetMapping("/disponibilidade")
     public ResponseEntity<Boolean> temCotaDisponivel(
-            @RequestParam Long profissionalId,
+            @RequestParam(required = false) Long profissionalId,
             @RequestParam Long especialidadeId,
             @RequestParam LocalDate data) {
 
-        return ResponseEntity.ok(
-                cotaMensalService.temCotaDisponivel(profissionalId, especialidadeId, data));
+        boolean disponivel = (profissionalId != null)
+                ? cotaMensalService.temCotaDisponivel(profissionalId, especialidadeId, data)
+                : cotaMensalService.temCotaDisponivel(especialidadeId, data);
+
+        return ResponseEntity.ok(disponivel);
     }
 
     @PatchMapping("/decrementar")
     public ResponseEntity<Void> decrementarCota(
-            @RequestParam Long profissionalId,
+            @RequestParam(required = false) Long profissionalId,
             @RequestParam Long especialidadeId,
             @RequestParam LocalDate data) {
 
-        cotaMensalService.decrementarCota(profissionalId, especialidadeId, data);
+        if (profissionalId != null) {
+            cotaMensalService.decrementarCota(profissionalId, especialidadeId, data);
+        } else {
+            cotaMensalService.decrementarCota(especialidadeId, data);
+        }
+
         return ResponseEntity.noContent().build();
     }
 }
