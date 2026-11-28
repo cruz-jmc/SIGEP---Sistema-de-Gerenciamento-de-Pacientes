@@ -2,6 +2,7 @@ package br.edu.upe.sigep.controller;
 
 import br.edu.upe.sigep.dto.request.RealocacaoRequestDTO;
 import br.edu.upe.sigep.dto.response.DataDisponivelRealocacaoResponseDTO;
+import br.edu.upe.sigep.enums.CriterioPriorizacaoRealocacao;
 import br.edu.upe.sigep.service.impl.DataDisponivelRealocacaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,17 @@ public class DataDisponivelRealocacaoController {
     private final DataDisponivelRealocacaoService realocacaoService;
 
     @GetMapping("/disponiveis")
-    public ResponseEntity<List<DataDisponivelRealocacaoResponseDTO>> listarDisponiveis() {
-        return ResponseEntity.ok(realocacaoService.listarDisponiveis());
+    public ResponseEntity<List<DataDisponivelRealocacaoResponseDTO>> listarDisponiveis(
+            @RequestParam(required = false, defaultValue = "DATA_MAIS_PROXIMA") CriterioPriorizacaoRealocacao criterio) {
+        return ResponseEntity.ok(realocacaoService.listarDisponiveis(criterio));
+    }
+
+    @GetMapping("/sugerir")
+    public ResponseEntity<DataDisponivelRealocacaoResponseDTO> sugerirMelhorVaga(
+            @RequestParam(required = false, defaultValue = "DATA_MAIS_PROXIMA") CriterioPriorizacaoRealocacao criterio) {
+        return realocacaoService.sugerirMelhorVaga(criterio)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @PatchMapping("/{id}/realocar")
