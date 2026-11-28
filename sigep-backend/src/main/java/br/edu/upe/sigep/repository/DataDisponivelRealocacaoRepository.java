@@ -15,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface DataDisponivelRealocacaoRepository extends JpaRepository<DataDisponivelRealocacao, Long> {
 
+    List<DataDisponivelRealocacao> findByStatus(StatusDataDisponivel status);
+
     List<DataDisponivelRealocacao> findByStatusOrderByDataDisponivelAsc(StatusDataDisponivel status);
 
     boolean existsByAgendamentoOrigemId(Long agendamentoOrigemId);

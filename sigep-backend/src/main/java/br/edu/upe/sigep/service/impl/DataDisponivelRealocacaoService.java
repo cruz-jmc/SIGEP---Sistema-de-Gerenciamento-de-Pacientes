@@ -5,12 +5,14 @@ import br.edu.upe.sigep.dto.response.DataDisponivelRealocacaoResponseDTO;
 import br.edu.upe.sigep.entity.AgendamentoSessao;
 import br.edu.upe.sigep.entity.DataDisponivelRealocacao;
 import br.edu.upe.sigep.entity.Usuario;
+import br.edu.upe.sigep.enums.CriterioPriorizacaoRealocacao;
 import br.edu.upe.sigep.enums.StatusDataDisponivel;
 import br.edu.upe.sigep.enums.StatusSessao;
 import br.edu.upe.sigep.mapper.DataDisponivelRealocacaoMapper;
 import br.edu.upe.sigep.repository.AgendamentoSessaoRepository;
 import br.edu.upe.sigep.repository.DataDisponivelRealocacaoRepository;
 import br.edu.upe.sigep.repository.UsuarioRepository;
+import br.edu.upe.sigep.strategy.realocacao.PriorizacaoRealocacaoContext;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,10 +32,8 @@ public class DataDisponivelRealocacaoService {
     private final AgendamentoSessaoRepository agendamentoSessaoRepository;
     private final UsuarioRepository usuarioRepository;
     private final DataDisponivelRealocacaoMapper mapper;
+    private final PriorizacaoRealocacaoContext priorizacaoContext;
 
-    /**
-     * Contrato para integração com o cancelamento de sessão (domínio da Letícia).
-     */
     @Transactional
     public DataDisponivelRealocacaoResponseDTO disponibilizarVaga(Long agendamentoOrigemId) {
         AgendamentoSessao sessaoCancelada = agendamentoSessaoRepository.findById(agendamentoOrigemId)
@@ -41,10 +42,6 @@ public class DataDisponivelRealocacaoService {
         return disponibilizarVaga(sessaoCancelada);
     }
 
-    /**
-     * Libera uma data disponível a partir de uma sessão cancelada elegível,
-     * impedindo duplicidade para a mesma sessão de origem.
-     */
     @Transactional
     public DataDisponivelRealocacaoResponseDTO disponibilizarVaga(AgendamentoSessao sessaoCancelada) {
         if (sessaoCancelada == null || sessaoCancelada.getId() == null) {
@@ -75,10 +72,21 @@ public class DataDisponivelRealocacaoService {
 
     @Transactional(readOnly = true)
     public List<DataDisponivelRealocacaoResponseDTO> listarDisponiveis() {
-        return realocacaoRepository.findByStatusOrderByDataDisponivelAsc(StatusDataDisponivel.DISPONIVEL)
+        return listarDisponiveis(CriterioPriorizacaoRealocacao.DATA_MAIS_PROXIMA);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DataDisponivelRealocacaoResponseDTO> listarDisponiveis(CriterioPriorizacaoRealocacao criterio) {
+        List<DataDisponivelRealocacao> vagas = realocacaoRepository.findByStatus(StatusDataDisponivel.DISPONIVEL);
+        return priorizacaoContext.executarPriorizacao(criterio, vagas)
                 .stream()
                 .map(mapper::toResponseDTO)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<DataDisponivelRealocacaoResponseDTO> sugerirMelhorVaga(CriterioPriorizacaoRealocacao criterio) {
+        return listarDisponiveis(criterio).stream().findFirst();
     }
 
     @Transactional
