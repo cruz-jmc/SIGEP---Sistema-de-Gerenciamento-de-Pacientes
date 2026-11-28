@@ -1,11 +1,12 @@
 package br.edu.upe.sigep.service.impl;
 
+import br.edu.upe.sigep.chain.agendamento.ValidacaoAgendamentoContext;
+import br.edu.upe.sigep.chain.agendamento.ValidadorAgendamentoChain;
 import br.edu.upe.sigep.dto.request.AgendamentoSessaoRequestDTO;
 import br.edu.upe.sigep.dto.response.AgendamentoSessaoResponseDTO;
 import br.edu.upe.sigep.entity.AgendamentoSessao;
 import br.edu.upe.sigep.enums.StatusPresenca;
 import br.edu.upe.sigep.enums.StatusSessao;
-import br.edu.upe.sigep.enums.StatusTratamento;
 import br.edu.upe.sigep.mapper.AgendamentoSessaoMapper;
 import br.edu.upe.sigep.repository.AgendamentoSessaoRepository;
 import br.edu.upe.sigep.repository.EscalaAtendimentoRepository;
@@ -28,18 +29,18 @@ public class AgendamentoSessaoService {
     private final EscalaAtendimentoRepository escalaAtendimentoRepository;
     private final UsuarioRepository usuarioRepository;
     private final AgendamentoSessaoMapper mapper;
+    private final ValidadorAgendamentoChain validadorAgendamentoChain;
+    private final CotaMensalService cotaMensalService;
 
     @Transactional
     public AgendamentoSessaoResponseDTO salvar(AgendamentoSessaoRequestDTO dto) {
         var plano = planoTratamentoRepository.findById(dto.planoTratamentoId())
                 .orElseThrow(() -> new RuntimeException("Plano de tratamento não encontrado com ID: " + dto.planoTratamentoId()));
 
-        if (plano.getStatusPlano() != StatusTratamento.ATIVO) {
-            throw new IllegalStateException("Só é possível agendar sessões para planos de tratamento ATIVOS.");
-        }
-
         var escala = escalaAtendimentoRepository.findById(dto.escalaAtendimentoId())
                 .orElseThrow(() -> new RuntimeException("Escala de atendimento não encontrada com ID: " + dto.escalaAtendimentoId()));
+
+        validadorAgendamentoChain.validar(new ValidacaoAgendamentoContext(dto, plano, escala));
 
         AgendamentoSessao agendamento = new AgendamentoSessao();
         agendamento.setPlanoTratamento(plano);
@@ -50,7 +51,14 @@ public class AgendamentoSessaoService {
         agendamento.setStatusPresenca(StatusPresenca.PENDENTE);
         agendamento.setCriadoEm(LocalDateTime.now());
 
-        return mapper.toResponseDTO(agendamentoSessaoRepository.save(agendamento));
+        AgendamentoSessao salvo = agendamentoSessaoRepository.save(agendamento);
+
+        cotaMensalService.decrementarCota(
+                escala.getProfissional().getId(),
+                escala.getEspecialidade().getId(),
+                dto.dataAgendada());
+
+        return mapper.toResponseDTO(salvo);
     }
 
     @Transactional(readOnly = true)
